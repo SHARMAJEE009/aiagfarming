@@ -22,14 +22,18 @@ async function verifyPassword(password: string, hash: string): Promise<boolean> 
 }
 
 const pool = getPgPool();
-const adapter: Adapter | undefined = pool ? (PostgresAdapter(pool) as Adapter) : undefined;
+if (!pool) {
+  console.warn("⚠️ DATABASE_URL is missing or pool failed to initialize. NextAuth will run without a database adapter!");
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   trustHost: true,
-  ...(adapter ? { adapter } : {}),
+  adapter: pool ? PostgresAdapter(pool) : undefined,
   providers: [
-    Google,
+    Google({
+      allowDangerousEmailAccountLinking: true,
+    }),
     Credentials({
       name: "credentials",
       credentials: {

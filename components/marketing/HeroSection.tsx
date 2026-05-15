@@ -3,9 +3,9 @@ import { Button } from "@/components/ui";
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#0D3320] via-[#1A7A3A] to-[#2d8e4e] pt-16">
+    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0D3320] via-[#1A7A3A] to-[#2d8e4e] pt-16">
       {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white/3 rounded-full blur-3xl" />
