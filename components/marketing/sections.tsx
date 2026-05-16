@@ -50,7 +50,7 @@ export function FeatureSection({ id, tag, title, description, features, reverse,
           {/* Visual placeholder */}
           <div className="flex-1">
             <div className="rounded-2xl overflow-hidden shadow-2xl border border-[#E5E7EB]" style={{ background: `linear-gradient(135deg, ${color}10, ${color}30)` }}>
-              <div className="h-64 lg:h-80 flex items-center justify-center">
+              <div className="h-48 md:h-64 lg:h-80 flex items-center justify-center">
                 <div className="text-center" style={{ color }}>
                   <div className="w-20 h-20 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: color + "20" }}>
                     <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -124,7 +124,7 @@ export function PricingSection() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {plans.map((plan) => (
             <div
               key={plan.name}
@@ -194,7 +194,7 @@ export function TestimonialsSection() {
           <h2 className="text-4xl font-bold text-white mb-4">Trusted by Farmers Across Australia</h2>
           <p className="text-white/70 text-lg">Real results from real operations</p>
         </div>
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {testimonials.map((t) => (
             <div key={t.name} className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
               <div className="flex gap-1 mb-4">
@@ -259,7 +259,7 @@ export function ROICalculator() {
               <div className="flex justify-between text-xs text-gray-400 mt-1"><span>0</span><span>5,000</span></div>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               { label: "Hours Saved / Month", value: `${timeSaved}h`, sub: "at admin tasks" },
               { label: "Est. Annual Savings", value: `$${(moneySaved).toLocaleString()}`, sub: "vs. multiple tools" },
@@ -354,8 +354,8 @@ export function Footer() {
   return (
     <footer className="bg-[#0D3320] text-white/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid md:grid-cols-5 gap-8 mb-12">
-          <div className="md:col-span-2">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+          <div className="col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 bg-[#1A7A3A] rounded-lg flex items-center justify-center">
                 <span className="text-white text-sm font-bold">AF</span>

@@ -14,8 +14,6 @@ export default function HomePage() {
     <>
       <HeroSection />
 
-      {/* Spacer to push past hero overlay */}
-      <div className="h-40 lg:h-64 bg-gradient-to-b from-[#2d8e4e] to-white" />
 
       {/* Feature: Crop Management */}
       <FeatureSection

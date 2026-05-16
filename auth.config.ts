@@ -22,8 +22,8 @@ export const authConfig = {
     async session({ session, token }) {
       if (session.user && token) {
         session.user.id = token.id as string;
-        session.user.name = token.name;
-        session.user.email = token.email;
+        session.user.name = token.name as string;
+        session.user.email = token.email as string;
         session.user.image = token.picture as string;
       }
       return session;
