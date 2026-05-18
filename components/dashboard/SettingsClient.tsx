@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, Button, Input, Badge } from "@/components/ui";
 import { useRouter } from "next/navigation";
 
@@ -34,6 +34,14 @@ export function SettingsClient({ org, user, team }: Props) {
   const [userName, setUserName] = useState(user.name  ?? "");
   const [location, setLocation] = useState(user.location ?? "");
   const [opType,   setOpType]   = useState(user.operationType ?? "");
+
+  useEffect(() => {
+    setOrgName(org?.name ?? "");
+    setOrgSlug(org?.slug ?? "");
+    setUserName(user.name ?? "");
+    setLocation(user.location ?? "");
+    setOpType(user.operationType ?? "");
+  }, [org?.id, user.id]);
 
   const handleSave = async () => {
     setSaving(true);
