@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui";
 import Link from "next/link";
 
@@ -11,11 +12,12 @@ interface FeatureSectionProps {
   description: string;
   features: string[];
   imageAlt: string;
+  imageSrc?: string;
   reverse?: boolean;
   color?: string;
 }
 
-export function FeatureSection({ id, tag, title, description, features, reverse, color = "#1A7A3A" }: FeatureSectionProps) {
+export function FeatureSection({ id, tag, title, description, features, imageSrc, imageAlt, reverse, color = "#1A7A3A" }: FeatureSectionProps) {
   return (
     <section id={id} className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -47,19 +49,25 @@ export function FeatureSection({ id, tag, title, description, features, reverse,
             </Link>
           </div>
 
-          {/* Visual placeholder */}
-          <div className="flex-1">
-            <div className="rounded-2xl overflow-hidden shadow-2xl border border-[#E5E7EB]" style={{ background: `linear-gradient(135deg, ${color}10, ${color}30)` }}>
-              <div className="h-48 md:h-64 lg:h-80 flex items-center justify-center">
-                <div className="text-center" style={{ color }}>
-                  <div className="w-20 h-20 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: color + "20" }}>
-                    <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                  </div>
-                  <p className="text-sm font-medium opacity-70">{tag} Dashboard Preview</p>
+          {/* Visual placeholder / Image */}
+          <div className="flex-1 w-full">
+            <div className="rounded-2xl overflow-hidden shadow-2xl border border-[#E5E7EB] relative" style={{ background: `linear-gradient(135deg, ${color}10, ${color}30)` }}>
+              {imageSrc ? (
+                <div className="relative w-full aspect-video">
+                  <Image src={imageSrc} alt={imageAlt} fill className="object-cover" />
                 </div>
-              </div>
+              ) : (
+                <div className="h-48 md:h-64 lg:h-80 flex items-center justify-center">
+                  <div className="text-center" style={{ color }}>
+                    <div className="w-20 h-20 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: color + "20" }}>
+                      <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                    <p className="text-sm font-medium opacity-70">{tag} Dashboard Preview</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

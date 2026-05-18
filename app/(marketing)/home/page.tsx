@@ -29,6 +29,7 @@ export default function HomePage() {
           "Crop performance analytics and yield predictions",
         ]}
         imageAlt="Crop management dashboard"
+        imageSrc="/Fromseedtosale.avif"
         color="#1A7A3A"
       />
 
@@ -46,6 +47,7 @@ export default function HomePage() {
           "Weight tracking with ASBV/EBV benchmarking",
         ]}
         imageAlt="Livestock management dashboard"
+        imageSrc="/Livestock.webp"
         reverse
         color="#F5A623"
       />
@@ -64,6 +66,7 @@ export default function HomePage() {
           "Revenue tracking: crop sales, livestock trading, subsidies",
         ]}
         imageAlt="Finance dashboard"
+        imageSrc="/finance.webp"
         color="#1A7A3A"
       />
 
@@ -81,6 +84,7 @@ export default function HomePage() {
           "Weather-aware spray window alerts",
         ]}
         imageAlt="AI advisory dashboard"
+        imageSrc="/agronomist.jpg"
         reverse
         color="#1A7A3A"
       />
