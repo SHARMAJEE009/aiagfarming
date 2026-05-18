@@ -1,27 +1,38 @@
-"use client";
+import { auth } from "@/auth";
+import { getOrgByEmail, getFinancialEntries, getRevenueChart } from "@/lib/queries";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { Card, CardHeader, CardTitle, Badge, Button, Table, Thead, Th, Tr, Td } from "@/components/ui";
-import { mockFinancialEntries, revenueChartData } from "@/lib/mock-data";
-import { formatCurrency, formatDate } from "@/lib/utils";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { formatCurrency } from "@/lib/utils";
+import { FinanceChartClient } from "@/components/dashboard/FinanceChartClient";
+import { AddEntryModal } from "@/components/dashboard/AddEntryModal";
 
-export default function FinancePage() {
-  const totalRevenue = mockFinancialEntries.filter(e => e.type === "income").reduce((a, e) => a + e.amount, 0);
-  const totalExpenses = mockFinancialEntries.filter(e => e.type === "expense").reduce((a, e) => a + e.amount, 0);
-  const netProfit = totalRevenue - totalExpenses;
+export default async function FinancePage() {
+  const session = await auth();
+  const ctx = session?.user?.email ? await getOrgByEmail(session.user.email) : null;
+  const orgId = ctx?.org_id;
+
+  const [entries, chartData] = orgId
+    ? await Promise.all([getFinancialEntries(orgId, 100), getRevenueChart(orgId)])
+    : [[], []];
+
+  const totalRevenue  = entries.filter((e) => e.type === "income").reduce((a, e) => a + e.amount, 0);
+  const totalExpenses = entries.filter((e) => e.type === "expense").reduce((a, e) => a + e.amount, 0);
+  const netProfit     = totalRevenue - totalExpenses;
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <TopBar
         title="Financial Management"
-        subtitle="P&L, income, expenses and integrations"
+        subtitle="P&L, income, expenses and ledger"
         actions={
           <div className="flex gap-2">
             <Button size="sm" variant="outline">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
               Export Report
             </Button>
-            <Button size="sm">Add Entry</Button>
+            <AddEntryModal />
           </div>
         }
       />
@@ -31,87 +42,70 @@ export default function FinancePage() {
           <Card>
             <p className="text-xs text-gray-500">MTD Revenue</p>
             <p className="text-2xl font-bold text-[#1A7A3A] mt-1">{formatCurrency(totalRevenue)}</p>
-            <p className="text-xs text-green-600 mt-1">↑ 12% vs last month</p>
+            <p className="text-xs text-gray-400 mt-1">{entries.filter((e) => e.type === "income").length} income entries</p>
           </Card>
           <Card>
             <p className="text-xs text-gray-500">MTD Expenses</p>
             <p className="text-2xl font-bold text-red-500 mt-1">{formatCurrency(totalExpenses)}</p>
-            <p className="text-xs text-gray-500 mt-1">↓ 8% vs last month</p>
+            <p className="text-xs text-gray-400 mt-1">{entries.filter((e) => e.type === "expense").length} expense entries</p>
           </Card>
           <Card>
             <p className="text-xs text-gray-500">Net Profit (MTD)</p>
-            <p className={`text-2xl font-bold mt-1 ${netProfit > 0 ? "text-[#1A7A3A]" : "text-red-500"}`}>
+            <p className={`text-2xl font-bold mt-1 ${netProfit >= 0 ? "text-[#1A7A3A]" : "text-red-500"}`}>
               {formatCurrency(netProfit)}
             </p>
-            <p className="text-xs text-green-600 mt-1">Healthy margin</p>
+            <p className="text-xs text-gray-400 mt-1">{netProfit >= 0 ? "Profitable" : "Loss"}</p>
           </Card>
         </div>
 
-        {/* Chart */}
-        <Card className="mb-6" padding={false}>
-          <div className="p-6 pb-2">
-            <CardHeader>
-              <CardTitle>Revenue vs Expenses — Last 7 Months</CardTitle>
-              <div className="flex gap-2">
-                <Button size="sm" variant="ghost" className="text-xs">Monthly</Button>
-                <Button size="sm" variant="secondary" className="text-xs">Quarterly</Button>
-              </div>
-            </CardHeader>
-          </div>
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={revenueChartData} margin={{ left: 16, right: 16, bottom: 8 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
-              <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#9CA3AF" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: "#9CA3AF" }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
-              <Tooltip formatter={(v) => [`$${Number(v).toLocaleString()}`, ""]} />
-              <Legend />
-              <Bar dataKey="revenue" name="Revenue" fill="#1A7A3A" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="expenses" name="Expenses" fill="#F5A623" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </Card>
+        {/* Chart — client component */}
+        <FinanceChartClient data={chartData} />
 
-        {/* Transactions */}
-        <Card padding={false}>
+        {/* Transactions table */}
+        <Card padding={false} className="mt-6">
           <div className="p-6 pb-0">
             <CardHeader>
-              <CardTitle>Recent Transactions</CardTitle>
+              <CardTitle>All Transactions ({entries.length})</CardTitle>
               <div className="flex gap-2">
-                <Badge variant="green">Income: {mockFinancialEntries.filter(e => e.type === "income").length}</Badge>
-                <Badge variant="red">Expense: {mockFinancialEntries.filter(e => e.type === "expense").length}</Badge>
+                <Badge variant="green">Income: {entries.filter((e) => e.type === "income").length}</Badge>
+                <Badge variant="red">Expense: {entries.filter((e) => e.type === "expense").length}</Badge>
               </div>
             </CardHeader>
           </div>
-          <Table>
-            <Thead>
-              <tr>
-                <Th>Date</Th>
-                <Th>Category</Th>
-                <Th>Type</Th>
-                <Th>Description</Th>
-                <Th className="text-right">Amount</Th>
-              </tr>
-            </Thead>
-            <tbody>
-              {mockFinancialEntries.map((entry) => (
-                <Tr key={entry.id}>
-                  <Td>{formatDate(entry.date)}</Td>
-                  <Td>
-                    <Badge variant="gray">{entry.category}</Badge>
-                  </Td>
-                  <Td>
-                    <Badge variant={entry.type === "income" ? "green" : "red"} className="capitalize">
-                      {entry.type}
-                    </Badge>
-                  </Td>
-                  <Td className="text-sm text-gray-600">{entry.description}</Td>
-                  <Td className={`text-right font-semibold ${entry.type === "income" ? "text-[#1A7A3A]" : "text-red-500"}`}>
-                    {entry.type === "income" ? "+" : "-"}{formatCurrency(entry.amount)}
-                  </Td>
-                </Tr>
-              ))}
-            </tbody>
-          </Table>
+          {entries.length === 0 ? (
+            <div className="py-16 text-center text-gray-400 text-sm">
+              No financial entries yet. Click &quot;Add Entry&quot; to record your first transaction.
+            </div>
+          ) : (
+            <Table>
+              <Thead>
+                <tr>
+                  <Th>Date</Th>
+                  <Th>Category</Th>
+                  <Th>Type</Th>
+                  <Th>Description</Th>
+                  <Th className="text-right">Amount</Th>
+                </tr>
+              </Thead>
+              <tbody>
+                {entries.map((entry) => (
+                  <Tr key={entry.id}>
+                    <Td>{new Date(entry.entry_date).toLocaleDateString("en-AU")}</Td>
+                    <Td><Badge variant="gray">{entry.category}</Badge></Td>
+                    <Td>
+                      <Badge variant={entry.type === "income" ? "green" : "red"} className="capitalize">
+                        {entry.type}
+                      </Badge>
+                    </Td>
+                    <Td className="text-sm text-gray-600 max-w-[220px] truncate">{entry.description ?? "—"}</Td>
+                    <Td className={`text-right font-semibold ${entry.type === "income" ? "text-[#1A7A3A]" : "text-red-500"}`}>
+                      {entry.type === "income" ? "+" : "-"}{formatCurrency(entry.amount)}
+                    </Td>
+                  </Tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
         </Card>
       </div>
     </div>

@@ -1,36 +1,38 @@
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { auth } from "@/auth";
-import { getPgPool } from "@/lib/db";
+import { getOrgByEmail, getUserOrganizations } from "@/lib/queries";
 import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   if (!session?.user?.email) redirect("/sign-in");
 
-  let needsOnboarding = false;
+  const ctx = await getOrgByEmail(session.user.email);
 
-  const pool = getPgPool();
-  if (pool) {
-    const client = await pool.connect();
-    try {
-      const result = await client.query("SELECT farm_name FROM users WHERE email = $1", [session.user.email]);
-      if (result.rows.length > 0 && !result.rows[0].farm_name) {
-        needsOnboarding = true;
-      }
-    } catch (e) {
-      console.error("Dashboard layout db error", e);
-    } finally {
-      client.release();
-    }
-  }
-
-  if (needsOnboarding) {
+  // If user has no farm_name yet, send to onboarding
+  if (!ctx?.farm_name && !ctx?.org_id) {
     redirect("/onboarding");
   }
 
+  const organizations = ctx?.user_id ? await getUserOrganizations(ctx.user_id) : [];
+
+  const orgName  = ctx?.org_name  ?? ctx?.farm_name ?? "My Farm";
+  const userName = ctx?.user_name ?? session.user.name ?? "User";
+  const userEmail = ctx?.user_email ?? session.user.email ?? "";
+  const userImage = ctx?.user_image ?? session.user.image ?? null;
+  const plan     = ctx?.plan ?? "starter";
+
   return (
     <div className="flex h-screen overflow-hidden bg-[#F9FAFB]">
-      <Sidebar />
+      <Sidebar
+        orgId={ctx?.org_id ?? ""}
+        orgName={orgName}
+        organizations={organizations}
+        userName={userName}
+        userEmail={userEmail}
+        userImage={userImage}
+        plan={plan}
+      />
       <div className="flex-1 flex flex-col overflow-hidden">
         {children}
       </div>

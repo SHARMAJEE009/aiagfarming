@@ -6,10 +6,12 @@ import { type ButtonHTMLAttributes, forwardRef } from "react";
 type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "outline";
 type ButtonSize = "sm" | "md" | "lg";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
+  as?: React.ElementType;
+  href?: string;
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
@@ -27,8 +29,8 @@ const sizeClasses: Record<ButtonSize, string> = {
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "primary", size = "md", loading, children, disabled, ...props }, ref) => (
-    <button
+  ({ className, variant = "primary", size = "md", loading, children, disabled, as: Component = "button", ...props }, ref) => (
+    <Component
       ref={ref}
       disabled={disabled || loading}
       className={cn(
@@ -46,7 +48,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         </svg>
       )}
       {children}
-    </button>
+    </Component>
   )
 );
 Button.displayName = "Button";
@@ -54,7 +56,7 @@ Button.displayName = "Button";
 // ─── Badge ────────────────────────────────────────────────────────────────────
 type BadgeVariant = "green" | "amber" | "red" | "gray" | "blue";
 
-interface BadgeProps {
+interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   variant?: BadgeVariant;
   children: React.ReactNode;
   className?: string;
@@ -68,7 +70,7 @@ const badgeVariants: Record<BadgeVariant, string> = {
   blue: "bg-blue-50 text-blue-700",
 };
 
-export function Badge({ variant = "gray", children, className }: BadgeProps) {
+export function Badge({ variant = "gray", children, className, ...props }: BadgeProps) {
   return (
     <span
       className={cn(
@@ -76,6 +78,7 @@ export function Badge({ variant = "gray", children, className }: BadgeProps) {
         badgeVariants[variant],
         className
       )}
+      {...props}
     >
       {children}
     </span>

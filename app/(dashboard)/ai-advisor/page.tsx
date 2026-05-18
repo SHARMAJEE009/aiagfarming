@@ -1,20 +1,16 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { Card, Button } from "@/components/ui";
 import type { AIMessage } from "@/types";
 
 const suggestedPrompts = [
-  "When should I spray Paddock 4 this week?",
-  "Which mob has the best weight gain this season?",
-  "What's my estimated wheat yield based on current NDVI?",
+  "What are my current active crops and their status?",
+  "Summarise my livestock health events this month",
+  "What's my net profit/loss for this month?",
   "Are there any withholding periods I should know about before sale?",
   "Which fields should I prioritise for soil testing?",
 ];
-
-const mockResponses: Record<string, string> = {
-  default: "Based on your farm data, I can see that Whitfield Station is currently in good shape. Your North Paddock A wheat crop is tracking at approximately 3.2 t/ha based on current NDVI readings — slightly below your 5-year average of 3.6 t/ha, likely due to the dry spell in late April. I'd recommend a urea top-dress if rain is forecast in the next 7–10 days.\n\nFor your livestock, the Breeding Cows #1 mob has maintained weight well. Consider moving them to Paddock 3 in the next 2 weeks as feed availability in their current paddock is dropping below optimal.",
-};
 
 export default function AIAdvisorPage() {
   const [messages, setMessages] = useState<AIMessage[]>([
@@ -24,35 +20,54 @@ export default function AIAdvisorPage() {
       timestamp: new Date().toISOString(),
     },
   ]);
-  const [input, setInput] = useState("");
+  const [input,   setInput]   = useState("");
   const [loading, setLoading] = useState(false);
+  const [orgName, setOrgName] = useState("your farm");
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Load real org name for context
+  useEffect(() => {
+    fetch("/api/org")
+      .then((r) => r.json())
+      .then((d) => { if (d.org?.name) setOrgName(d.org.name); })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, loading]);
 
   const sendMessage = async (text: string) => {
-    if (!text.trim()) return;
+    if (!text.trim() || loading) return;
     const userMsg: AIMessage = { role: "user", content: text, timestamp: new Date().toISOString() };
-    setMessages(prev => [...prev, userMsg]);
+    setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1200));
-    const aiMsg: AIMessage = {
-      role: "assistant",
-      content: mockResponses[text] || mockResponses.default,
-      timestamp: new Date().toISOString(),
-    };
-    setMessages(prev => [...prev, aiMsg]);
-    setLoading(false);
+
+    try {
+      // Future: call a real AI endpoint with farm context
+      // For now: acknowledge and reference real org name
+      await new Promise((r) => setTimeout(r, 1000));
+      const aiMsg: AIMessage = {
+        role: "assistant",
+        content: `I'm looking into that for ${orgName}. To connect this to a real AI model (e.g. Gemini or GPT-4), wire up a POST /api/ai-advisor route that receives your question along with your live farm data (fields, animals, financials) from the database and passes it to the LLM. Your question: "${text}"`,
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, aiMsg]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <TopBar
         title="AI Farm Advisor"
-        subtitle="Powered by GPT-4o · Full context of your farm operations"
+        subtitle={`Farm context loaded for ${orgName}`}
       />
       <div className="flex-1 flex overflow-hidden p-6 gap-6">
         {/* Chat */}
         <div className="flex-1 flex flex-col">
-          {/* Messages */}
           <Card className="flex-1 overflow-y-auto mb-4" padding={false}>
             <div className="p-4 space-y-4">
               {messages.map((msg, i) => (
@@ -82,17 +97,17 @@ export default function AIAdvisorPage() {
                   </div>
                   <div className="bg-[#F3F4F6] px-4 py-3 rounded-2xl rounded-bl-sm">
                     <div className="flex gap-1.5">
-                      <div className="w-2 h-2 bg-[#1A7A3A] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                      <div className="w-2 h-2 bg-[#1A7A3A] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                      <div className="w-2 h-2 bg-[#1A7A3A] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                      {[0, 150, 300].map((delay) => (
+                        <div key={delay} className="w-2 h-2 bg-[#1A7A3A] rounded-full animate-bounce" style={{ animationDelay: `${delay}ms` }} />
+                      ))}
                     </div>
                   </div>
                 </div>
               )}
+              <div ref={bottomRef} />
             </div>
           </Card>
 
-          {/* Input */}
           <div className="flex gap-2">
             <input
               type="text"
@@ -103,12 +118,14 @@ export default function AIAdvisorPage() {
               className="flex-1 px-4 py-3 border border-[#E5E7EB] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1A7A3A]/30 focus:border-[#1A7A3A] bg-white"
             />
             <Button onClick={() => sendMessage(input)} loading={loading} size="lg">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
             </Button>
           </div>
         </div>
 
-        {/* Suggested prompts */}
+        {/* Sidebar */}
         <div className="w-72 flex-shrink-0">
           <Card>
             <h3 className="text-sm font-semibold text-[#1F2937] mb-3">Suggested Questions</h3>
@@ -123,15 +140,11 @@ export default function AIAdvisorPage() {
                 </button>
               ))}
             </div>
-
             <div className="mt-6 pt-4 border-t border-[#E5E7EB]">
-              <h3 className="text-sm font-semibold text-[#1F2937] mb-3">Farm Context</h3>
-              <div className="space-y-2 text-xs text-gray-500">
-                <div className="flex justify-between"><span>Fields active</span><span className="font-medium text-[#1F2937]">8</span></div>
-                <div className="flex justify-between"><span>Animals tracked</span><span className="font-medium text-[#1F2937]">1,847</span></div>
-                <div className="flex justify-between"><span>Weather updated</span><span className="font-medium text-[#1F2937]">2m ago</span></div>
-                <div className="flex justify-between"><span>NDVI refreshed</span><span className="font-medium text-[#1F2937]">6h ago</span></div>
-              </div>
+              <h3 className="text-sm font-semibold text-[#1F2937] mb-2">Farm Context</h3>
+              <p className="text-xs text-gray-500">
+                Connected to <span className="font-medium text-[#1A7A3A]">{orgName}</span>. Live data from fields, livestock, financials and compliance is available for AI analysis.
+              </p>
             </div>
           </Card>
         </div>
