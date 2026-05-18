@@ -1,10 +1,19 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui";
 
 export function NavBar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const links = [
     { label: "Crops", href: "#crops" },
@@ -15,7 +24,7 @@ export function NavBar() {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-[#E5E7EB]">
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-white/95 backdrop-blur-sm border-b border-[#E5E7EB] py-0" : "bg-transparent border-transparent py-2"}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -23,7 +32,7 @@ export function NavBar() {
             <div className="w-8 h-8 bg-[#1A7A3A] rounded-lg flex items-center justify-center">
               <span className="text-white text-sm font-bold">AF</span>
             </div>
-            <span className="text-lg font-bold text-[#0D3320]">AIAG Farming</span>
+            <span className={`text-lg font-bold transition-colors ${scrolled ? "text-[#0D3320]" : "text-white"}`}>AIAG Farming</span>
           </Link>
 
           {/* Desktop nav */}
@@ -32,7 +41,7 @@ export function NavBar() {
               <a
                 key={l.href}
                 href={l.href}
-                className="text-sm text-gray-600 hover:text-[#1A7A3A] transition-colors font-medium"
+                className={`text-sm font-medium transition-colors ${scrolled ? "text-gray-600 hover:text-[#1A7A3A]" : "text-white/80 hover:text-white"}`}
               >
                 {l.label}
               </a>
@@ -42,7 +51,7 @@ export function NavBar() {
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
             <Link href="/sign-in">
-              <Button variant="ghost" size="sm">Sign In</Button>
+              <Button variant="ghost" size="sm" className={scrolled ? "" : "text-white hover:text-white/80 hover:bg-white/10"}>Sign In</Button>
             </Link>
             <Link href="/sign-up">
               <Button variant="primary" size="sm">Start Free Trial</Button>
@@ -51,7 +60,7 @@ export function NavBar() {
 
           {/* Mobile toggle */}
           <button
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+            className={`md:hidden p-2 rounded-lg transition-colors ${scrolled ? "hover:bg-gray-100 text-gray-900" : "hover:bg-white/10 text-white"}`}
             onClick={() => setMobileOpen(!mobileOpen)}
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

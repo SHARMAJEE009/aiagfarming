@@ -7,7 +7,7 @@ export function HeroSection() {
       {/* Background Image Container - Ends after trust badges */}
       <div className="relative pt-12 pb-10 md:pt-16 md:pb-14">
         {/* Background Image Layer */}
-        <div 
+        <div
           className="absolute inset-0 z-0"
           style={{
             backgroundImage: 'url("/download.gif")',
@@ -15,7 +15,7 @@ export function HeroSection() {
             backgroundPosition: 'center',
           }}
         />
-        
+
         {/* Dark Green Overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#0D3320]/90 via-[#1A7A3A]/80 to-[#2d8e4e]/60 z-10" />
 
