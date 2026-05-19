@@ -3,10 +3,11 @@ import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, Button, Input, Badge } from "@/components/ui";
 import { useRouter } from "next/navigation";
 
-const TABS = ["Organisation", "Team", "Billing", "Security"];
+const TABS = ["Organisation", "Team", "Billing", "Security", "Integrations"];
 
 const INTEGRATIONS = [
   { name: "Xero",          description: "Sync income and expense entries",   connected: false, logo: "X"  },
+  { name: "MYOB",          description: "Sync accounting and billing records", connected: false, logo: "MY" },
   { name: "NLIS",          description: "National Livestock Identification",  connected: false, logo: "NL" },
   { name: "OpenWeatherMap",description: "Real-time weather data",             connected: false, logo: "W"  },
   { name: "AgriDigital",   description: "Grain commodity integration",        connected: false, logo: "AD" },
@@ -34,6 +35,17 @@ export function SettingsClient({ org, user, team }: Props) {
   const [userName, setUserName] = useState(user.name  ?? "");
   const [location, setLocation] = useState(user.location ?? "");
   const [opType,   setOpType]   = useState(user.operationType ?? "");
+
+  // Integrations state
+  const [connections, setConnections] = useState(INTEGRATIONS);
+
+  const toggleConnection = (name: string) => {
+    setConnections((prev) =>
+      prev.map((item) =>
+        item.name === name ? { ...item, connected: !item.connected } : item
+      )
+    );
+  };
 
   useEffect(() => {
     setOrgName(org?.name ?? "");
@@ -225,6 +237,59 @@ export function SettingsClient({ org, user, team }: Props) {
                   <div className={`w-11 h-6 rounded-full transition-colors cursor-pointer ${s.enabled ? "bg-[#1A7A3A]" : "bg-gray-200"} relative`}>
                     <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${s.enabled ? "translate-x-6" : "translate-x-1"}`} />
                   </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Integrations tab */}
+      {activeTab === "Integrations" && (
+        <div className="max-w-4xl space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Connected Applications</CardTitle>
+              <p className="text-sm text-gray-500 mt-1">
+                Link external software and state devices to synchronize your crop, livestock, financial, and atmospheric operations.
+              </p>
+            </CardHeader>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+              {connections.map((int) => (
+                <div
+                  key={int.name}
+                  className="flex items-center justify-between p-4 rounded-xl border border-[#E5E7EB] hover:border-[#D1D5DB] transition-all bg-white shadow-sm"
+                >
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold shadow-inner ${
+                        int.connected
+                          ? "bg-[#1A7A3A]/10 text-[#1A7A3A] border border-[#1A7A3A]/20"
+                          : "bg-gray-100 text-gray-400 border border-gray-200"
+                      }`}
+                    >
+                      {int.logo}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-[#1F2937]">{int.name}</p>
+                        {int.connected && (
+                          <span className="text-[10px] bg-green-100 text-green-800 px-2 py-0.5 rounded-full font-medium">
+                            Connected
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-0.5">{int.description}</p>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant={int.connected ? "outline" : "primary"}
+                    className="flex-shrink-0"
+                    onClick={() => toggleConnection(int.name)}
+                  >
+                    {int.connected ? "Disconnect" : "Connect"}
+                  </Button>
                 </div>
               ))}
             </div>
