@@ -2,8 +2,10 @@ import { auth } from "@/auth";
 import { getOrgByEmail, getFields, getSeasons } from "@/lib/queries";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { FieldsMap } from "@/components/dashboard/FieldsMap";
+import { FieldsBoundaryPanel } from "@/components/dashboard/FieldsBoundaryPanel";
 import { Card, CardHeader, CardTitle, Badge, Button, Table, Thead, Th, Tr, Td } from "@/components/ui";
 import { AddFieldModal } from "@/components/dashboard/AddFieldModal";
+import type { LatLng } from "@/components/dashboard/FieldsMap";
 
 const statusMap: Record<string, { label: string; variant: "green" | "amber" | "gray" }> = {
   active:    { label: "Active",    variant: "green" },
@@ -20,6 +22,17 @@ export default async function FieldsPage() {
 
   const totalArea    = fields.reduce((a, f) => a + f.area_ha, 0);
   const activeCount  = fields.filter((f) => f.season_status === "active").length;
+  const mappedCount  = fields.filter((f) => {
+    const b = f.boundary_geojson as LatLng[] | null;
+    return Array.isArray(b) && b.length >= 3;
+  }).length;
+
+  // Build field data for the map
+  const fieldMapData = fields.map((f) => ({
+    id: f.id,
+    name: f.name,
+    boundary: (f.boundary_geojson as LatLng[] | null) ?? undefined,
+  }));
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -30,11 +43,12 @@ export default async function FieldsPage() {
       />
       <div className="flex-1 overflow-y-auto p-6">
         {/* Summary cards */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-4 gap-4 mb-6">
           {[
-            { label: "Total Fields",   value: fields.length,              sub: "registered"       },
+            { label: "Total Fields",   value: fields.length,               sub: "registered"        },
             { label: "Total Area",     value: `${totalArea.toFixed(1)} ha`, sub: "across all fields" },
-            { label: "Active Seasons", value: activeCount,                sub: "growing now"      },
+            { label: "Active Seasons", value: activeCount,                  sub: "growing now"       },
+            { label: "Mapped Fields",  value: mappedCount,                  sub: "with boundaries"   },
           ].map((s) => (
             <Card key={s.label}>
               <p className="text-sm text-gray-500">{s.label}</p>
@@ -44,10 +58,23 @@ export default async function FieldsPage() {
           ))}
         </div>
 
+        {/* Overview map with all saved boundaries */}
         <Card className="mb-6 overflow-hidden" padding={false}>
-          <div className="h-64 rounded-xl overflow-hidden">
-            <FieldsMap apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY} heightPx={256} />
+          <div className="px-5 pt-4 pb-2 flex items-center justify-between">
+            <div>
+              <p className="font-semibold text-[#1F2937]">Farm Overview Map</p>
+              <p className="text-xs text-gray-500 mt-0.5">All mapped paddock boundaries</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 bg-[#1A7A3A]/40 border border-[#1A7A3A] rounded-sm inline-block" />
+              <span className="text-xs text-gray-500">Mapped boundary</span>
+            </div>
           </div>
+          <FieldsMap
+            apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
+            fields={fieldMapData}
+            heightPx={320}
+          />
         </Card>
 
         {/* Fields table */}
@@ -75,12 +102,14 @@ export default async function FieldsPage() {
                   <Th>Soil Type</Th>
                   <Th>Current Crop</Th>
                   <Th>Season Status</Th>
+                  <Th>Boundary</Th>
                   <Th>Actions</Th>
                 </tr>
               </Thead>
               <tbody>
                 {fields.map((field) => {
                   const status = field.season_status ? statusMap[field.season_status] : null;
+                  const hasBoundary = Array.isArray(field.boundary_geojson) && (field.boundary_geojson as LatLng[]).length >= 3;
                   return (
                     <Tr key={field.id}>
                       <Td>
@@ -102,9 +131,21 @@ export default async function FieldsPage() {
                           : <span className="text-gray-400">—</span>}
                       </Td>
                       <Td>
+                        {hasBoundary
+                          ? <Badge variant="green">✓ Mapped</Badge>
+                          : <span className="text-xs text-gray-400">Not mapped</span>}
+                      </Td>
+                      <Td>
                         <div className="flex gap-1">
                           <Button size="sm" variant="ghost">View</Button>
                           <Button size="sm" variant="ghost">Edit</Button>
+                          {/* Client-side boundary mapper trigger */}
+                          <FieldsBoundaryPanel
+                            fieldId={field.id}
+                            fieldName={field.name}
+                            apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
+                            initialBoundary={(field.boundary_geojson as LatLng[] | null) ?? []}
+                          />
                         </div>
                       </Td>
                     </Tr>

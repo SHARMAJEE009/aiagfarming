@@ -141,11 +141,12 @@ export async function getLivestockBySpecies(orgId: string) {
 export async function getFields(orgId: string) {
   return dbQuery<{
     id: string; name: string; area_ha: number; soil_type: string | null;
-    created_at: string;
+    created_at: string; boundary_geojson: unknown | null;
     crop_type: string | null; season_status: string | null;
   }>(
     `SELECT
        f.id, f.name, f.area_ha, f.soil_type, f.created_at,
+       f.boundary_geojson,
        s.crop_type, s.status AS season_status
      FROM fields f
      LEFT JOIN LATERAL (
