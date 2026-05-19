@@ -171,6 +171,13 @@ export async function createField(
   );
 }
 
+export async function deleteField(orgId: string, id: string) {
+  return dbQuery(
+    `DELETE FROM fields WHERE organization_id = $1 AND id = $2`,
+    [orgId, id]
+  );
+}
+
 // ─── Seasons ───────────────────────────────────────────────────────────────
 
 export async function getSeasons(orgId: string) {

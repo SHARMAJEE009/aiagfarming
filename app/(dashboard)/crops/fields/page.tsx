@@ -3,6 +3,7 @@ import { getOrgByEmail, getFields, getSeasons } from "@/lib/queries";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { FieldsMap } from "@/components/dashboard/FieldsMap";
 import { FieldsBoundaryPanel } from "@/components/dashboard/FieldsBoundaryPanel";
+import { DeleteFieldButton } from "@/components/dashboard/DeleteFieldButton";
 import { Card, CardHeader, CardTitle, Badge, Button, Table, Thead, Th, Tr, Td } from "@/components/ui";
 import { AddFieldModal } from "@/components/dashboard/AddFieldModal";
 import type { LatLng } from "@/components/dashboard/FieldsMap";
@@ -39,7 +40,12 @@ export default async function FieldsPage() {
       <TopBar
         title="Fields"
         subtitle="Manage your farm fields and GIS boundaries"
-        actions={<AddFieldModal />}
+        actions={<Button variant="primary" className="bg-[#1A7A3A] hover:bg-[#155d2c] text-white flex items-center gap-2">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
+          Add farm map .kml
+        </Button>}
       />
       <div className="flex-1 overflow-y-auto p-6">
         {/* Summary cards */}
@@ -83,8 +89,7 @@ export default async function FieldsPage() {
             <CardHeader>
               <CardTitle>All Fields ({fields.length})</CardTitle>
               <div className="flex gap-2">
-                <Button size="sm" variant="outline">Import CSV</Button>
-                <Button size="sm" variant="outline">Export</Button>
+                <AddFieldModal />
               </div>
             </CardHeader>
           </div>
@@ -136,7 +141,7 @@ export default async function FieldsPage() {
                           : <span className="text-xs text-gray-400">Not mapped</span>}
                       </Td>
                       <Td>
-                        <div className="flex gap-1">
+                        <div className="flex gap-1 items-center">
                           <Button size="sm" variant="ghost">View</Button>
                           <Button size="sm" variant="ghost">Edit</Button>
                           {/* Client-side boundary mapper trigger */}
@@ -146,6 +151,7 @@ export default async function FieldsPage() {
                             apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
                             initialBoundary={(field.boundary_geojson as LatLng[] | null) ?? []}
                           />
+                          <DeleteFieldButton fieldId={field.id} fieldName={field.name} />
                         </div>
                       </Td>
                     </Tr>
