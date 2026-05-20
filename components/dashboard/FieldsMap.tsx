@@ -16,12 +16,13 @@ interface FieldsMapProps {
   fields?: FieldData[];
   markers?: LatLng[];
   heightPx?: number;
+  selectedFieldId?: string;
 }
 
 const DEFAULT_CENTER: LatLng = { lat: -26.726, lng: 150.744 };
 
 /* ─── Inner component that draws polygons via the Maps API ─────────────────── */
-function PolygonLayer({ fields }: { fields: FieldData[] }) {
+function PolygonLayer({ fields, selectedFieldId }: { fields: FieldData[], selectedFieldId?: string }) {
   const map = useMap();
   const mapsLib = useMapsLibrary("maps");
   const polygonsRef = useRef<google.maps.Polygon[]>([]);
@@ -33,35 +34,54 @@ function PolygonLayer({ fields }: { fields: FieldData[] }) {
     polygonsRef.current.forEach((p) => p.setMap(null));
     polygonsRef.current = [];
 
-    fields.forEach((field) => {
+    fields.forEach((field, index) => {
       if (!field.boundary || field.boundary.length < 3) return;
+      
+      if (selectedFieldId && field.id !== selectedFieldId) {
+        return; // Don't render unselected fields
+      }
+      
+      const hue = (index * 137.508) % 360;
+      const baseColor = `hsl(${hue}, 70%, 40%)`;
+      
+      let fillColor = baseColor;
+      let strokeColor = baseColor;
+      let fillOpacity = 0.35;
+      let strokeOpacity = 0.9;
+      
+      if (selectedFieldId && field.id === selectedFieldId) {
+        fillOpacity = 0.6;
+        strokeOpacity = 1.0;
+      }
+
       const polygon = new mapsLib.Polygon({
         paths: field.boundary,
-        strokeColor: "#1A7A3A",
-        strokeOpacity: 0.9,
+        strokeColor,
+        strokeOpacity,
         strokeWeight: 2,
-        fillColor: "#1A7A3A",
-        fillOpacity: 0.2,
+        fillColor,
+        fillOpacity,
         map,
       });
       polygonsRef.current.push(polygon);
     });
 
-    // Auto-fit bounds to all polygons
+    // Auto-fit bounds to rendered polygons
     if (polygonsRef.current.length > 0) {
       const bounds = new google.maps.LatLngBounds();
-      fields.forEach((f) => f.boundary?.forEach((pt) => bounds.extend(pt)));
+      const fieldsToFit = selectedFieldId ? fields.filter(f => f.id === selectedFieldId) : fields;
+      fieldsToFit.forEach((f) => f.boundary?.forEach((pt) => bounds.extend(pt)));
       map.fitBounds(bounds, 60);
     }
 
     return () => polygonsRef.current.forEach((p) => p.setMap(null));
-  }, [mapsLib, map, fields]);
+  }, [mapsLib, map, fields, selectedFieldId]);
 
   return null;
 }
 
 /* ─── Exported Map Component ─────────────────────────────────────────────── */
-export function FieldsMap({ apiKey, fields = [], markers = [], heightPx = 256 }: FieldsMapProps) {
+export function FieldsMap({ apiKey, fields = [], markers = [], heightPx = 256, selectedFieldId }: FieldsMapProps) {
   if (!apiKey?.trim()) {
     return (
       <div
@@ -103,7 +123,7 @@ export function FieldsMap({ apiKey, fields = [], markers = [], heightPx = 256 }:
         gestureHandling="cooperative"
       >
         {/* Render all saved boundaries */}
-        <PolygonLayer fields={fields} />
+        <PolygonLayer fields={fields} selectedFieldId={selectedFieldId} />
 
         {/* Fallback plain markers when no boundary defined */}
         {fields

@@ -171,6 +171,27 @@ export async function createField(
   );
 }
 
+export async function bulkCreateFields(
+  orgId: string,
+  fields: { name: string; area_ha: number; boundary_geojson?: any }[]
+) {
+  if (fields.length === 0) return [];
+  const values: any[] = [];
+  const placeholders: string[] = [];
+  
+  let i = 1;
+  fields.forEach(f => {
+    placeholders.push(`($${i++}, $${i++}, $${i++}, $${i++})`);
+    values.push(orgId, f.name, f.area_ha, f.boundary_geojson ? JSON.stringify(f.boundary_geojson) : null);
+  });
+
+  return dbQuery<{ id: string }>(
+    `INSERT INTO fields (organization_id, name, area_ha, boundary_geojson)
+     VALUES ${placeholders.join(', ')} RETURNING id`,
+    values
+  );
+}
+
 export async function deleteField(orgId: string, id: string) {
   return dbQuery(
     `DELETE FROM fields WHERE organization_id = $1 AND id = $2`,
