@@ -1,6 +1,6 @@
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { auth } from "@/auth";
-import { getOrgByEmail, getUserOrganizations } from "@/lib/queries";
+import { getOrgByEmail } from "@/lib/queries";
 import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -14,8 +14,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect("/onboarding");
   }
 
-  const organizations = ctx?.user_id ? await getUserOrganizations(ctx.user_id) : [];
-
   const orgName  = ctx?.org_name  ?? ctx?.farm_name ?? "My Farm";
   const userName = ctx?.user_name ?? session.user.name ?? "User";
   const userEmail = ctx?.user_email ?? session.user.email ?? "";
@@ -27,7 +25,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <Sidebar
         orgId={ctx?.org_id ?? ""}
         orgName={orgName}
-        organizations={organizations}
         userName={userName}
         userEmail={userEmail}
         userImage={userImage}

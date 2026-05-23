@@ -3,6 +3,7 @@ import { getOrgByEmail } from "@/lib/queries";
 import { dbQuery } from "@/lib/db";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { Card, CardHeader, CardTitle, Badge, Button, Table, Thead, Th, Tr, Td } from "@/components/ui";
+import { AddBreedingModal } from "@/components/dashboard/AddBreedingModal";
 
 const statusColors: Record<string, "green" | "amber" | "gray"> = {
   confirmed: "green",
@@ -42,7 +43,7 @@ export default async function BreedingPage() {
       <TopBar
         title="Breeding Management"
         subtitle="Joining records, pregnancy testing and birth tracking"
-        actions={<Button size="sm">Record Joining</Button>}
+        actions={<AddBreedingModal />}
       />
       <div className="flex-1 overflow-y-auto p-6">
         <div className="grid grid-cols-3 gap-4 mb-6">

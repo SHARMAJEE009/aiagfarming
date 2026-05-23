@@ -1,7 +1,8 @@
 import { auth } from "@/auth";
-import { getOrgByEmail, getSeasons, getFields } from "@/lib/queries";
+import { getOrgByEmail, getSeasons } from "@/lib/queries";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { Card, CardHeader, CardTitle, Badge, Button, Table, Thead, Th, Tr, Td } from "@/components/ui";
+import { AddSeasonModal } from "@/components/dashboard/AddSeasonModal";
 
 const statusMap: Record<string, { label: string; variant: "green" | "amber" | "gray" }> = {
   active:    { label: "Active",    variant: "green" },
@@ -25,14 +26,7 @@ export default async function SeasonsPage() {
       <TopBar
         title="Seasons"
         subtitle="Track planting, growing, and harvest cycles"
-        actions={
-          <Button size="sm">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            New Season
-          </Button>
-        }
+        actions={<AddSeasonModal />}
       />
       <div className="flex-1 overflow-y-auto p-6">
         <div className="grid grid-cols-3 gap-4 mb-6">

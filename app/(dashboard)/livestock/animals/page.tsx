@@ -3,6 +3,7 @@ import { getOrgByEmail, getAnimals, getAnimalCounts } from "@/lib/queries";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { Card, Badge, Button, Table, Thead, Th, Tr, Td } from "@/components/ui";
 import { AnimalsClient } from "@/components/dashboard/AnimalsClient";
+import { AddAnimalModal } from "@/components/dashboard/AddAnimalModal";
 
 export default async function AnimalsPage() {
   const session = await auth();
@@ -23,12 +24,7 @@ export default async function AnimalsPage() {
         actions={
           <div className="flex gap-2">
             <Button size="sm" variant="outline">Import CSV</Button>
-            <Button size="sm">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Add Animal
-            </Button>
+            <AddAnimalModal />
           </div>
         }
       />

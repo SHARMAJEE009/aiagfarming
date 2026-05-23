@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { getOrgByEmail, getMobs, getPaddocks } from "@/lib/queries";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { Card, CardHeader, CardTitle, Badge, Button, Table, Thead, Th, Tr, Td } from "@/components/ui";
+import { AddMobModal } from "@/components/dashboard/AddMobModal";
 
 const speciesColor: Record<string, string> = {
   cattle:  "#1A7A3A",
@@ -28,14 +29,7 @@ export default async function MobsPage() {
       <TopBar
         title="Mobs & Paddocks"
         subtitle="Manage livestock groups and paddock allocations"
-        actions={
-          <Button size="sm">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Add Mob
-          </Button>
-        }
+        actions={<AddMobModal />}
       />
       <div className="flex-1 overflow-y-auto p-6">
         <div className="grid grid-cols-3 gap-4 mb-6">

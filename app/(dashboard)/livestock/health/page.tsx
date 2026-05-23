@@ -1,7 +1,8 @@
 import { auth } from "@/auth";
-import { getOrgByEmail, getHealthEvents, getMobs } from "@/lib/queries";
+import { getOrgByEmail, getHealthEvents } from "@/lib/queries";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { Card, CardHeader, CardTitle, Badge, Button, Table, Thead, Th, Tr, Td } from "@/components/ui";
+import { AddHealthEventModal } from "@/components/dashboard/AddHealthEventModal";
 
 const eventTypeVariant: Record<string, "green" | "amber" | "gray" | "red"> = {
   vaccination: "green",
@@ -36,14 +37,7 @@ export default async function HealthPage() {
       <TopBar
         title="Health Events"
         subtitle="Vaccination and treatment records with withholding period tracking"
-        actions={
-          <Button size="sm">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Log Event
-          </Button>
-        }
+        actions={<AddHealthEventModal />}
       />
       <div className="flex-1 overflow-y-auto p-6">
         {activeWithhold.length > 0 && (

@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { getOrgByEmail, getSprayRecords } from "@/lib/queries";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { Card, CardHeader, CardTitle, Badge, Button, Table, Thead, Th, Tr, Td } from "@/components/ui";
+import { AddSprayModal } from "@/components/dashboard/AddSprayModal";
 
 export default async function SpraysPage() {
   const session = await auth();
@@ -24,14 +25,7 @@ export default async function SpraysPage() {
       <TopBar
         title="Spray Records"
         subtitle="Chemical application log and withholding period tracker"
-        actions={
-          <Button size="sm">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Log Spray
-          </Button>
-        }
+        actions={<AddSprayModal />}
       />
       <div className="flex-1 overflow-y-auto p-6">
         {withWarning.length > 0 && (
