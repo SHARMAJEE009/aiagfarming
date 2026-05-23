@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { getOrgByEmail, getOrgById, getTeamMembers } from "@/lib/queries";
+import { getOrgByEmail, getOrgById, getTeamMembers, getPendingInvites } from "@/lib/queries";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { SettingsClient } from "@/components/dashboard/SettingsClient";
 
@@ -8,9 +8,9 @@ export default async function SettingsPage() {
   const ctx = session?.user?.email ? await getOrgByEmail(session.user.email) : null;
   const orgId = ctx?.org_id;
 
-  const [org, team] = orgId
-    ? await Promise.all([getOrgById(orgId), getTeamMembers(orgId)])
-    : [null, []];
+  const [org, team, invites] = orgId
+    ? await Promise.all([getOrgById(orgId), getTeamMembers(orgId), getPendingInvites(orgId)])
+    : [null, [], []];
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -33,6 +33,7 @@ export default async function SettingsPage() {
           farmSize:      ctx?.farm_size  ?? null,
         }}
         team={team}
+        invites={invites}
       />
     </div>
   );

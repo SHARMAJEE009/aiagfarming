@@ -194,6 +194,25 @@ CREATE TABLE financial_entries (
   description        TEXT
 );
 
+-- ─── Invitations ───────────────────────────────────────────────────────────
+CREATE TABLE invitations (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  email           TEXT NOT NULL,
+  name            TEXT,
+  role            user_role NOT NULL DEFAULT 'MANAGER',
+  token           TEXT NOT NULL UNIQUE,
+  status          TEXT NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending','accepted','revoked')),
+  invited_by      TEXT REFERENCES users(id) ON DELETE SET NULL,
+  expires_at      TIMESTAMPTZ NOT NULL DEFAULT (now() + interval '7 days'),
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_invitations_token ON invitations(token);
+CREATE INDEX idx_invitations_org   ON invitations(organization_id);
+CREATE INDEX idx_invitations_email ON invitations(email);
+
 CREATE INDEX idx_fields_org ON fields(organization_id);
 CREATE INDEX idx_seasons_field ON seasons(field_id);
 CREATE INDEX idx_spray_field ON spray_records(field_id);

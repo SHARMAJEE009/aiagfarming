@@ -498,6 +498,39 @@ export async function updateUserProfile(
   await dbQuery(`UPDATE users SET ${sets.join(", ")} WHERE id = $${idx}`, params);
 }
 
+// ─── Invitations ───────────────────────────────────────────────────────────
+
+export async function getPendingInvites(orgId: string) {
+  return dbQuery<{
+    id: string; email: string; name: string | null; role: string;
+    invited_by_name: string | null; expires_at: string; created_at: string;
+  }>(
+    `SELECT i.id, i.email, i.name, i.role, i.expires_at, i.created_at,
+            u.name AS invited_by_name
+     FROM invitations i
+     LEFT JOIN users u ON u.id = i.invited_by
+     WHERE i.organization_id = $1 AND i.status = 'pending'
+     ORDER BY i.created_at DESC`,
+    [orgId]
+  );
+}
+
+export async function getInviteByToken(token: string) {
+  return dbQueryOne<{
+    id: string; organization_id: string; email: string; name: string | null;
+    role: string; status: string; expires_at: string; org_name: string;
+    invited_by_name: string | null;
+  }>(
+    `SELECT i.id, i.organization_id, i.email, i.name, i.role, i.status, i.expires_at,
+            o.name AS org_name, u.name AS invited_by_name
+     FROM invitations i
+     JOIN organizations o ON o.id = i.organization_id
+     LEFT JOIN users u ON u.id = i.invited_by
+     WHERE i.token = $1`,
+    [token]
+  );
+}
+
 // ─── Paddocks ──────────────────────────────────────────────────────────────
 
 export async function getPaddocks(orgId: string) {
