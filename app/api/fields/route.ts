@@ -27,9 +27,14 @@ export async function POST(req: NextRequest) {
     const orgId = await getOrgId();
     if (!orgId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const body = await req.json();
-    const { name, area_ha, soil_type } = body;
+    const { name, area_ha, soil_type, boundary } = body;
     if (!name || !area_ha) return NextResponse.json({ error: "name and area_ha are required" }, { status: 400 });
-    const result = await createField(orgId, { name, area_ha: parseFloat(area_ha), soil_type });
+    const result = await createField(orgId, {
+      name,
+      area_ha: parseFloat(area_ha),
+      soil_type,
+      boundary: Array.isArray(boundary) ? boundary : undefined,
+    });
     return NextResponse.json({ id: result?.id }, { status: 201 });
   } catch (err) {
     console.error("[POST /api/fields]", err);

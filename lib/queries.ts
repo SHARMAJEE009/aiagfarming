@@ -162,12 +162,13 @@ export async function getFields(orgId: string) {
 
 export async function createField(
   orgId: string,
-  data: { name: string; area_ha: number; soil_type?: string }
+  data: { name: string; area_ha: number; soil_type?: string; boundary?: unknown[] }
 ) {
   return dbQueryOne<{ id: string }>(
-    `INSERT INTO fields (organization_id, name, area_ha, soil_type)
-     VALUES ($1,$2,$3,$4) RETURNING id`,
-    [orgId, data.name, data.area_ha, data.soil_type ?? null]
+    `INSERT INTO fields (organization_id, name, area_ha, soil_type, boundary_geojson)
+     VALUES ($1,$2,$3,$4,$5) RETURNING id`,
+    [orgId, data.name, data.area_ha, data.soil_type ?? null,
+     data.boundary && data.boundary.length >= 3 ? JSON.stringify(data.boundary) : null]
   );
 }
 
@@ -538,4 +539,80 @@ export async function getPaddocks(orgId: string) {
     `SELECT id, name, area_ha FROM paddocks WHERE organization_id = $1 ORDER BY name`,
     [orgId]
   );
+}
+
+// ─── Soil Reports ─────────────────────────────────────────────────────────────
+
+export async function getSoilReports(orgId: string) {
+  return dbQuery<{
+    id: string; report_name: string; field_id: string | null;
+    field_name: string | null; uploaded_at: string;
+    ai_analysis: unknown; status: string;
+  }>(
+    `SELECT sr.id, sr.report_name, sr.field_id, f.name AS field_name,
+            sr.uploaded_at, sr.ai_analysis, sr.status
+     FROM soil_reports sr
+     LEFT JOIN fields f ON f.id = sr.field_id
+     WHERE sr.organization_id = $1
+     ORDER BY sr.uploaded_at DESC`,
+    [orgId]
+  );
+}
+
+export async function createSoilReport(
+  orgId: string,
+  data: { report_name: string; field_id?: string; status?: string }
+) {
+  return dbQueryOne<{ id: string }>(
+    `INSERT INTO soil_reports (organization_id, report_name, field_id, status)
+     VALUES ($1,$2,$3,$4) RETURNING id`,
+    [orgId, data.report_name, data.field_id ?? null, data.status ?? 'processing']
+  );
+}
+
+export async function updateSoilReport(
+  id: string,
+  data: { ai_analysis?: unknown; extracted_text?: string; status?: string }
+) {
+  const sets: string[] = [];
+  const params: unknown[] = [];
+  let idx = 1;
+  if (data.ai_analysis !== undefined) {
+    sets.push(`ai_analysis = $${idx++}`);
+    params.push(JSON.stringify(data.ai_analysis));
+  }
+  if (data.extracted_text !== undefined) {
+    sets.push(`extracted_text = $${idx++}`);
+    params.push(data.extracted_text);
+  }
+  if (data.status) {
+    sets.push(`status = $${idx++}`);
+    params.push(data.status);
+  }
+  if (!sets.length) return;
+  params.push(id);
+  await dbQuery(`UPDATE soil_reports SET ${sets.join(", ")} WHERE id = $${idx}`, params);
+}
+
+export async function deleteSoilReport(orgId: string, id: string) {
+  await dbQuery(
+    `DELETE FROM soil_reports WHERE id = $1 AND organization_id = $2`,
+    [id, orgId]
+  );
+}
+
+// ─── AI Advisor context ────────────────────────────────────────────────────────
+
+export async function getFarmContext(orgId: string) {
+  const [fields, seasons, mobs, animals, healthEvents, financials, soilReports] =
+    await Promise.all([
+      getFields(orgId),
+      getSeasons(orgId),
+      getMobs(orgId),
+      getAnimals(orgId),
+      getHealthEvents(orgId),
+      getFinancialEntries(orgId, 100),
+      getSoilReports(orgId),
+    ]);
+  return { fields, seasons, mobs, animals, healthEvents, financials, soilReports };
 }

@@ -23,9 +23,10 @@ interface FieldsInteractiveViewProps {
   activeCount: number;
   mappedCount: number;
   apiKey: string | undefined;
+  farmCenter?: LatLng;
 }
 
-export function FieldsInteractiveView({ fields, fieldMapData, totalArea, activeCount, mappedCount, apiKey }: FieldsInteractiveViewProps) {
+export function FieldsInteractiveView({ fields, fieldMapData, totalArea, activeCount, mappedCount, apiKey, farmCenter }: FieldsInteractiveViewProps) {
   const [selectedFieldId, setSelectedFieldId] = useState<string | undefined>();
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -122,7 +123,7 @@ export function FieldsInteractiveView({ fields, fieldMapData, totalArea, activeC
             <CardHeader>
               <CardTitle>All Fields ({fields.length})</CardTitle>
               <div className="flex gap-2">
-                <AddFieldModal />
+                <AddFieldModal apiKey={apiKey} farmCenter={farmCenter} existingFields={fieldMapData} />
               </div>
             </CardHeader>
           </div>

@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "lh3.googleusercontent.com", pathname: "/**" },
     ],
   },
+  serverExternalPackages: ["pdf-parse", "pdf-parse/lib/pdf-parse"],
 };
 
 export default nextConfig;

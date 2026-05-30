@@ -213,10 +213,24 @@ CREATE INDEX idx_invitations_token ON invitations(token);
 CREATE INDEX idx_invitations_org   ON invitations(organization_id);
 CREATE INDEX idx_invitations_email ON invitations(email);
 
-CREATE INDEX idx_fields_org ON fields(organization_id);
-CREATE INDEX idx_seasons_field ON seasons(field_id);
-CREATE INDEX idx_spray_field ON spray_records(field_id);
-CREATE INDEX idx_paddocks_org ON paddocks(organization_id);
-CREATE INDEX idx_mobs_org ON mobs(organization_id);
-CREATE INDEX idx_animals_org ON animals(organization_id);
-CREATE INDEX idx_fin_org_date ON financial_entries(organization_id, entry_date);
+-- ─── Agronomist Soil Reports ───────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS soil_reports (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  organization_id  UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  field_id         UUID REFERENCES fields(id) ON DELETE SET NULL,
+  report_name      TEXT NOT NULL,
+  uploaded_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  extracted_text   TEXT,
+  ai_analysis      JSONB,
+  status           TEXT NOT NULL DEFAULT 'processing'
+    CHECK (status IN ('processing','done','error'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_fields_org ON fields(organization_id);
+CREATE INDEX IF NOT EXISTS idx_seasons_field ON seasons(field_id);
+CREATE INDEX IF NOT EXISTS idx_spray_field ON spray_records(field_id);
+CREATE INDEX IF NOT EXISTS idx_paddocks_org ON paddocks(organization_id);
+CREATE INDEX IF NOT EXISTS idx_mobs_org ON mobs(organization_id);
+CREATE INDEX IF NOT EXISTS idx_animals_org ON animals(organization_id);
+CREATE INDEX IF NOT EXISTS idx_fin_org_date ON financial_entries(organization_id, entry_date);
+CREATE INDEX IF NOT EXISTS idx_soil_reports_org ON soil_reports(organization_id);

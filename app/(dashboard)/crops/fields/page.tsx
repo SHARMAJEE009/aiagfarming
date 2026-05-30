@@ -24,14 +24,24 @@ export default async function FieldsPage() {
     boundary: (f.boundary_geojson as LatLng[] | null) ?? undefined,
   }));
 
+  // Compute farm center from existing boundaries for auto-centering the Add Field map
+  const allPoints = fields.flatMap((f) => (f.boundary_geojson as LatLng[] | null) ?? []);
+  const farmCenter: LatLng = allPoints.length > 0
+    ? {
+        lat: allPoints.reduce((a, p) => a + p.lat, 0) / allPoints.length,
+        lng: allPoints.reduce((a, p) => a + p.lng, 0) / allPoints.length,
+      }
+    : { lat: -26.726, lng: 150.744 };
+
   return (
-    <FieldsInteractiveView 
-      fields={fields} 
-      fieldMapData={fieldMapData} 
-      totalArea={totalArea} 
-      activeCount={activeCount} 
-      mappedCount={mappedCount} 
-      apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY} 
+    <FieldsInteractiveView
+      fields={fields}
+      fieldMapData={fieldMapData}
+      totalArea={totalArea}
+      activeCount={activeCount}
+      mappedCount={mappedCount}
+      apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
+      farmCenter={farmCenter}
     />
   );
 }
