@@ -49,11 +49,15 @@ export function InviteAcceptForm({ token, email, orgName, role, invitedName, inv
 
       setDone(true);
 
+      // Roles that must complete WHS onboarding gate before accessing the dashboard
+      const WHS_GATE_ROLES = ["MANAGER", "AGRONOMIST", "FARMHAND"];
+      const callbackUrl = WHS_GATE_ROLES.includes(role) ? "/whs-gate" : "/overview";
+
       // Auto sign-in with credentials
       await signIn("credentials", {
         email,
         password,
-        callbackUrl: "/overview",
+        callbackUrl,
       });
     } catch {
       setError("An unexpected error occurred. Please try again.");

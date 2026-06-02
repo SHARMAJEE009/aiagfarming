@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { getOrgByEmail, getFarmContext } from "@/lib/queries";
+import { getFarmContext } from "@/lib/queries";
+import { requireRole } from "@/lib/api-auth";
 import OpenAI from "openai";
 
 interface ChatMessage { role: "user" | "assistant"; content: string }
@@ -75,13 +75,9 @@ ${soilReports.length > 0 ? `═══ SOIL REPORTS ═══\n${soilSummary}` : 
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.email)
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const ctx = await getOrgByEmail(session.user.email);
-    if (!ctx?.org_id)
-      return NextResponse.json({ error: "No organization" }, { status: 403 });
+    const result = await requireRole(["OWNER", "MANAGER", "AGRONOMIST"]);
+    if ("error" in result) return result.error;
+    const ctx = result.ctx;
 
     const { message, history } = await req.json() as {
       message: string;
@@ -92,7 +88,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 });
 
     const farmCtx = await getFarmContext(ctx.org_id);
-    const systemPrompt = buildSystemPrompt(ctx.org_name || ctx.farm_name || "Your Farm", farmCtx);
+    const systemPrompt = buildSystemPrompt(ctx.org_name || (ctx as { farm_name?: string }).farm_name || "Your Farm", farmCtx);
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 

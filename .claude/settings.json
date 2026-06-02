@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/asus/Desktop/**)",
+      "Bash(dir \"c:\\\\Users\\\\asus\\\\Desktop\\\\aiag_farming\\\\app\\\\api\")",
+      "Bash(npx tsc *)"
+    ]
+  }
+}

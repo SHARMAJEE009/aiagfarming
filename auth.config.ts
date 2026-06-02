@@ -10,12 +10,14 @@ export const authConfig = {
   },
   debug: true,
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
         token.picture = user.image;
+        // user.role is set by credentials authorize() or pg-adapter SELECT *
+        token.role = (user as { role?: string }).role ?? "FARMHAND";
       }
       return token;
     },
@@ -25,6 +27,7 @@ export const authConfig = {
         session.user.name = token.name as string;
         session.user.email = token.email as string;
         session.user.image = token.picture as string;
+        session.user.role = token.role as string;
       }
       return session;
     },

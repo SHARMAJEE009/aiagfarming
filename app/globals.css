@@ -28,3 +28,26 @@ body {
 ::-webkit-scrollbar-track { background: #f1f1f1; }
 ::-webkit-scrollbar-thumb { background: #c3e6cc; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #1A7A3A; }
+
+/* ─── Print / PDF export ──────────────────────────────────────────────────── */
+@page {
+  size: A4 portrait;
+  margin: 18mm 15mm;
+}
+
+@media print {
+  /* Force exact colour rendering so green badges, amber pills, etc. survive */
+  *, *::before, *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    background: white !important;
+  }
+
+  /* Avoid page breaks inside cards */
+  .print-card {
+    break-inside: avoid;
+  }
+}

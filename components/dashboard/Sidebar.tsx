@@ -4,8 +4,16 @@ import Image from "next/image";
 import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { NAV_GROUPS_FOR_ROLE, CAN_ACCESS_SETTINGS, type UserRole } from "@/lib/permissions";
 
-const navGroups = [
+interface NavItem {
+  href: string;
+  label: string;
+  icon: string;
+  roles?: UserRole[];
+}
+
+const navGroups: { label: string; items: NavItem[] }[] = [
   {
     label: "Overview",
     items: [{ href: "/overview", label: "Dashboard", icon: "grid" }],
@@ -13,18 +21,20 @@ const navGroups = [
   {
     label: "Crops",
     items: [
-      { href: "/crops/fields",  label: "Fields",       icon: "map"     },
-      { href: "/crops/seasons", label: "Seasons",      icon: "sun"     },
-      { href: "/crops/sprays",  label: "Spray Records",icon: "droplet" },
+      { href: "/crops/fields",  label: "Fields",        icon: "map"       },
+      { href: "/crops/seasons", label: "Seasons",       icon: "sun"       },
+      { href: "/crops/sprays",  label: "Spray Records", icon: "droplet"   },
+      { href: "/benchmark",     label: "Benchmark",     icon: "bar-chart",
+        roles: ["OWNER", "MANAGER", "AGRONOMIST"] },
     ],
   },
   {
     label: "Livestock",
     items: [
-      { href: "/livestock/animals",  label: "Animals",      icon: "tag"      },
-      { href: "/livestock/mobs",     label: "Mobs & Paddocks", icon: "users" },
-      { href: "/livestock/health",   label: "Health Events",icon: "heart"    },
-      { href: "/livestock/breeding", label: "Breeding",     icon: "git-merge"},
+      { href: "/livestock/animals",  label: "Animals",         icon: "tag"       },
+      { href: "/livestock/mobs",     label: "Mobs & Paddocks", icon: "users"     },
+      { href: "/livestock/health",   label: "Health Events",   icon: "heart"     },
+      { href: "/livestock/breeding", label: "Breeding",        icon: "git-merge" },
     ],
   },
   {
@@ -35,10 +45,16 @@ const navGroups = [
     ],
   },
   {
+    label: "Safety & WHS",
+    items: [
+      { href: "/safety", label: "Safety Hub", icon: "hard-hat" },
+    ],
+  },
+  {
     label: "Intelligence",
     items: [
-      { href: "/ai-advisor",          label: "AI Farm Advisor",      icon: "cpu"       },
-      { href: "/agronomist-reports",  label: "Agronomist Reports",   icon: "file-text" },
+      { href: "/ai-advisor",         label: "AI Farm Advisor",    icon: "cpu"       },
+      { href: "/agronomist-reports", label: "Agronomist Reports", icon: "file-text" },
     ],
   },
 ];
@@ -56,6 +72,8 @@ const icons: Record<string, React.ReactNode> = {
   shield: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>,
   cpu: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2h-2M9 3a2 2 0 002 2h2a2 2 0 002-2M9 3a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>,
   "file-text": <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
+  "bar-chart": <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>,
+  "hard-hat": <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 2a8 8 0 018 8v1H4v-1a8 8 0 018-8z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M3 11h18v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2z"/></svg>,
 };
 
 interface SidebarProps {
@@ -65,20 +83,24 @@ interface SidebarProps {
   userEmail: string;
   userImage: string | null;
   plan: string;
+  userRole: UserRole;
 }
 
-export function Sidebar({ orgId, orgName, userName, userEmail, userImage, plan }: SidebarProps) {
+export function Sidebar({ orgId, orgName, userName, userEmail, userImage, plan, userRole }: SidebarProps) {
   const pathname = usePathname();
 
   const initials = userName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+  const allowedGroups = NAV_GROUPS_FOR_ROLE[userRole] ?? NAV_GROUPS_FOR_ROLE["FARMHAND"];
+  const visibleGroups = navGroups.filter((g) => allowedGroups.includes(g.label));
+  const canSettings = CAN_ACCESS_SETTINGS.includes(userRole);
 
   return (
     <>
-      <aside className="w-64 bg-[#0D3320] flex flex-col h-full relative z-20">
+      <aside className="w-56 bg-[#0D3320] flex flex-col h-full relative z-20">
         {/* Logo */}
-        <div className="flex items-center gap-2.5 px-6 py-5 border-b border-white/10">
-          <div className="w-8 h-8 bg-[#1A7A3A] rounded-lg flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-sm font-bold">AF</span>
+        <div className="flex items-center gap-2.5 px-5 py-4 border-b border-white/10">
+          <div className="w-7 h-7 bg-[#1A7A3A] rounded-lg flex items-center justify-center flex-shrink-0">
+            <span className="text-white text-xs font-bold">AF</span>
           </div>
           <div>
             <p className="text-white font-bold text-sm">AIAG Farming</p>
@@ -87,9 +109,9 @@ export function Sidebar({ orgId, orgName, userName, userEmail, userImage, plan }
         </div>
 
         {/* Farm / Org Display */}
-        <div className="px-3 py-3 border-b border-white/10">
-          <div className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg bg-white/5">
-            <div className="w-6 h-6 bg-[#1A7A3A] rounded-md flex items-center justify-center flex-shrink-0">
+        <div className="px-3 py-2.5 border-b border-white/10">
+          <div className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-white/5">
+            <div className="w-5 h-5 bg-[#1A7A3A] rounded-md flex items-center justify-center flex-shrink-0">
               <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
               </svg>
@@ -98,61 +120,87 @@ export function Sidebar({ orgId, orgName, userName, userEmail, userImage, plan }
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4">
-          {navGroups.map((group) => (
-            <div key={group.label} className="mb-6">
-              <p className="text-white/30 text-xs font-semibold uppercase tracking-widest px-3 mb-2">{group.label}</p>
-              {group.items.map((item) => {
-                const active = pathname === item.href || pathname.startsWith(item.href + "/");
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-lg mb-0.5 text-sm transition-all",
-                      active
-                        ? "bg-[#1A7A3A] text-white font-medium shadow-sm"
-                        : "text-white/60 hover:text-white hover:bg-white/10"
-                    )}
-                  >
-                    <span className={active ? "text-white" : "text-white/50"}>{icons[item.icon]}</span>
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
-          ))}
+        {/* Navigation — filtered by role */}
+        <nav className="flex-1 overflow-y-auto px-3 py-3">
+          {visibleGroups.map((group) => {
+            const visibleItems = group.items.filter(
+              (item) => !item.roles || item.roles.includes(userRole)
+            );
+            if (visibleItems.length === 0) return null;
+            return (
+              <div key={group.label} className="mb-5">
+                <p className="text-white/30 text-xs font-semibold uppercase tracking-widest px-2 mb-1.5">
+                  {group.label}
+                </p>
+                {visibleItems.map((item) => {
+                  const active = pathname === item.href || pathname.startsWith(item.href + "/");
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        "flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg mb-0.5 text-sm transition-all",
+                        active
+                          ? "bg-[#1A7A3A] text-white font-medium shadow-sm"
+                          : "text-white/60 hover:text-white hover:bg-white/10"
+                      )}
+                    >
+                      <span className={active ? "text-white" : "text-white/50"}>{icons[item.icon]}</span>
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            );
+          })}
         </nav>
 
-        {/* User */}
-        <div className="px-3 py-4 border-t border-white/10">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors">
-            <Link href="/settings" className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="w-7 h-7 bg-[#1A7A3A] rounded-full flex items-center justify-center text-white text-xs font-bold overflow-hidden shrink-0">
-                {userImage ? (
-                  <Image src={userImage} alt="" width={28} height={28} className="w-full h-full object-cover" />
-                ) : (
-                  initials
-                )}
+        {/* User footer */}
+        <div className="px-3 py-3 border-t border-white/10">
+          <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/10 transition-colors">
+            {canSettings ? (
+              <Link href="/settings" className="flex items-center gap-2.5 flex-1 min-w-0">
+                <div className="w-6 h-6 bg-[#1A7A3A] rounded-full flex items-center justify-center text-white text-xs font-bold overflow-hidden shrink-0">
+                  {userImage ? (
+                    <Image src={userImage} alt="" width={24} height={24} className="w-full h-full object-cover" />
+                  ) : (
+                    initials
+                  )}
+                </div>
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-white/80 text-xs font-medium truncate">{userName}</p>
+                  <p className="text-white/40 text-xs truncate">{userEmail}</p>
+                </div>
+              </Link>
+            ) : (
+              <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                <div className="w-6 h-6 bg-[#1A7A3A] rounded-full flex items-center justify-center text-white text-xs font-bold overflow-hidden shrink-0">
+                  {userImage ? (
+                    <Image src={userImage} alt="" width={24} height={24} className="w-full h-full object-cover" />
+                  ) : (
+                    initials
+                  )}
+                </div>
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-white/80 text-xs font-medium truncate">{userName}</p>
+                  <p className="text-white/40 text-xs truncate">{userEmail}</p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0 text-left">
-                <p className="text-white/80 text-xs font-medium truncate">{userName}</p>
-                <p className="text-white/40 text-xs truncate">{userEmail}</p>
-              </div>
-            </Link>
-            <Link href="/settings" className="p-1.5 rounded-md hover:bg-white/10 flex-shrink-0" aria-label="Settings">
-              <svg className="w-3.5 h-3.5 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </Link>
+            )}
+            {canSettings && (
+              <Link href="/settings" className="p-1.5 rounded-md hover:bg-white/10 flex-shrink-0" aria-label="Settings">
+                <svg className="w-3.5 h-3.5 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </Link>
+            )}
           </div>
-          <div className="px-4 pt-1">
+          <div className="px-3 pt-1">
             <button
               type="button"
               onClick={() => void signOut({ callbackUrl: "/home" })}
-              className="text-white/50 hover:text-white text-xs"
+              className="text-white/40 hover:text-white/70 text-xs transition-colors"
             >
               Sign out
             </button>

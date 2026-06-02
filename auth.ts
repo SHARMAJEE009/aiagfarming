@@ -52,7 +52,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           }
 
           const result = await client.query(
-            "SELECT id, email, password, name FROM users WHERE email = $1",
+            "SELECT id, email, password, name, role FROM users WHERE email = $1",
             [credentials.email]
           );
 
@@ -73,6 +73,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             id: user.id,
             email: user.email,
             name: user.name,
+            role: user.role ?? "FARMHAND",
           };
         } catch (error) {
           console.error("Auth error:", error);

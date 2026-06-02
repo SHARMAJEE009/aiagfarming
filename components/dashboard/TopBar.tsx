@@ -8,7 +8,7 @@ interface TopBarProps {
 
 export function TopBar({ title, subtitle, actions }: TopBarProps) {
   return (
-    <div className="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-6 flex-shrink-0">
+    <div className="h-14 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-5 flex-shrink-0">
       <div>
         <h1 className="text-lg font-semibold text-[#1F2937]">{title}</h1>
         {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}

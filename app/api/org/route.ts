@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getOrgByEmail, updateOrg, getTeamMembers, updateUserProfile } from "@/lib/queries";
+import { saveEmploymentContract } from "@/lib/whs-queries";
+import { isValidRole } from "@/lib/permissions";
 
 async function getOrgContext() {
   const session = await auth();
@@ -53,7 +55,7 @@ export async function PATCH(request: Request) {
     if (!ctx) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
     const body = await request.json();
-    const { orgName, orgSlug, userName, location, operationType } = body;
+    const { orgName, orgSlug, userName, location, operationType, employmentContractHtml } = body;
 
     const updates: Promise<unknown>[] = [];
 
@@ -65,6 +67,15 @@ export async function PATCH(request: Request) {
       updates.push(updateUserProfile(ctx.user_id, {
         name: userName, location, operation_type: operationType,
       }));
+    }
+
+    if (typeof employmentContractHtml === "string" && ctx.org_id) {
+      const rawRole = ctx.user_role;
+      const canEditContract = isValidRole(rawRole) && ["OWNER", "MANAGER"].includes(rawRole);
+      if (!canEditContract) {
+        return NextResponse.json({ error: "Only owners and managers can edit the employment contract." }, { status: 403 });
+      }
+      updates.push(saveEmploymentContract(ctx.org_id, employmentContractHtml));
     }
 
     await Promise.all(updates);

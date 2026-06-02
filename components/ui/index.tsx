@@ -97,7 +97,7 @@ export function Card({ children, className, padding = true }: CardProps) {
     <div
       className={cn(
         "bg-white rounded-xl border border-[#E5E7EB] shadow-sm",
-        padding && "p-6",
+        padding && "p-5",
         className
       )}
     >
@@ -129,8 +129,8 @@ export function StatTile({ label, value, change, changeType = "neutral", icon, c
     <Card>
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm text-gray-500 mb-1">{label}</p>
-          <p className="text-2xl font-bold text-[#1F2937]">{value}</p>
+          <p className="text-xs text-gray-500 mb-1">{label}</p>
+          <p className="text-xl font-bold text-[#1F2937]">{value}</p>
           {change && (
             <p
               className={cn(

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card, CardHeader, CardTitle, Button, Input, Badge } from "@/components/ui";
 import { useRouter } from "next/navigation";
 
-const TABS = ["Organisation", "Team", "Billing", "Security", "Integrations"];
+const TABS = ["Organisation", "Team", "Employment Contract", "Billing", "Security", "Integrations"];
 
 const INTEGRATIONS = [
   { name: "Xero",          description: "Sync income and expense entries",    connected: false, logo: "X"  },
@@ -26,13 +26,13 @@ interface User       { id: string; name: string; email: string; role: string; im
 interface TeamMember { id: string; name: string; email: string; role: string; image: string | null; }
 interface Invite     { id: string; email: string; name: string | null; role: string; invited_by_name: string | null; expires_at: string; created_at: string; }
 
-interface Props { org: Org | null; user: User; team: TeamMember[]; invites: Invite[]; }
+interface Props { org: Org | null; user: User; team: TeamMember[]; invites: Invite[]; employmentContractHtml?: string | null; }
 
 function initials(name: string) {
   return name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
 }
 
-export function SettingsClient({ org, user, team, invites: initialInvites }: Props) {
+export function SettingsClient({ org, user, team, invites: initialInvites, employmentContractHtml: initialContract }: Props) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("Organisation");
   const [saving, setSaving]       = useState(false);
@@ -44,6 +44,12 @@ export function SettingsClient({ org, user, team, invites: initialInvites }: Pro
   const [userName, setUserName] = useState(user.name  ?? "");
   const [location, setLocation] = useState(user.location ?? "");
   const [opType,   setOpType]   = useState(user.operationType ?? "");
+
+  // Employment contract state
+  const [contractHtml,   setContractHtml]   = useState(initialContract ?? "");
+  const [contractSaving, setContractSaving] = useState(false);
+  const [contractSaved,  setContractSaved]  = useState(false);
+  const [contractError,  setContractError]  = useState("");
 
   // Team state
   const [members,       setMembers]       = useState(team);
@@ -350,6 +356,78 @@ export function SettingsClient({ org, user, team, invites: initialInvites }: Pro
                   </div>
                 </div>
               ))}
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Employment Contract tab */}
+      {activeTab === "Employment Contract" && (
+        <div className="max-w-2xl space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Employment Contract Template</CardTitle>
+            </CardHeader>
+            <p className="text-sm text-gray-500 mb-4">
+              This contract is shown to new team members (Manager, Agronomist, Staff) during their WHS onboarding gate.
+              They must read and acknowledge it before signing the WHS policy forms.
+            </p>
+            {contractError && (
+              <div className="mb-3 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
+                {contractError}
+              </div>
+            )}
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-gray-700">Contract Text</label>
+              <textarea
+                value={contractHtml}
+                onChange={(e) => setContractHtml(e.target.value)}
+                rows={16}
+                placeholder="Paste or type your employment contract here. You can use basic HTML for formatting (e.g. <b>bold</b>, <br> line breaks, <ul><li>lists</li></ul>)."
+                className="w-full border border-[#D1D5DB] rounded-lg px-3 py-2.5 text-sm text-[#1F2937] font-mono focus:outline-none focus:ring-2 focus:ring-[#1A7A3A]/40 focus:border-[#1A7A3A] resize-y"
+              />
+              <p className="text-xs text-gray-400">
+                Supports basic HTML. Leave blank to skip the contract step during onboarding.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 mt-4">
+              <Button
+                onClick={async () => {
+                  setContractSaving(true);
+                  setContractError("");
+                  try {
+                    const res = await fetch("/api/org", {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ employmentContractHtml: contractHtml }),
+                    });
+                    if (res.ok) {
+                      setContractSaved(true);
+                      setTimeout(() => setContractSaved(false), 3000);
+                    } else {
+                      const data = await res.json() as { error?: string };
+                      setContractError(data.error ?? "Save failed");
+                    }
+                  } finally {
+                    setContractSaving(false);
+                  }
+                }}
+                loading={contractSaving}
+              >
+                {contractSaved ? "Saved!" : "Save Contract"}
+              </Button>
+              {contractHtml && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const w = window.open("", "_blank");
+                    if (w) { w.document.write(contractHtml); w.document.close(); }
+                  }}
+                  className="text-sm text-[#1A7A3A] hover:underline"
+                >
+                  Preview
+                </button>
+              )}
             </div>
           </Card>
         </div>

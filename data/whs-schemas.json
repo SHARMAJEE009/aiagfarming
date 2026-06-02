@@ -1,0 +1,1199 @@
+[
+  {
+    "id": "T1",
+    "version": "1",
+    "title": "WHS Policy Acknowledgement",
+    "description": "Acknowledgement of the organisation's Work Health and Safety policy.",
+    "stage": "onboarding",
+    "permissions": {
+      "canFill": ["owner", "manager", "agronomist", "staff"],
+      "canSign": ["owner", "manager", "agronomist", "staff"],
+      "canView": ["owner", "manager"]
+    },
+    "sections": [
+      {
+        "title": "Organisation WHS Policy",
+        "fields": [
+          {
+            "key": "policy_text",
+            "label": "WHS Policy Statement",
+            "type": "acknowledgement_group",
+            "items": [
+              "{{company_name}} is committed to providing a safe and healthy workplace for all workers, contractors, and visitors.",
+              "All persons at the workplace have a duty to take reasonable care of their own health and safety and the health and safety of others.",
+              "Hazards and risks will be identified, assessed and controlled in accordance with the WHS Act.",
+              "Workers will be consulted on matters affecting their health and safety.",
+              "Incidents and near misses will be reported, recorded and investigated promptly.",
+              "WHS training will be provided to all workers relevant to their role.",
+              "This policy will be reviewed annually or following any significant incident."
+            ],
+            "mustAcceptAll": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "title": "Worker Declaration",
+        "fields": [
+          {
+            "key": "employee_name",
+            "label": "Full Name",
+            "type": "text",
+            "placeholder": "Enter your full legal name",
+            "required": true
+          },
+          {
+            "key": "position",
+            "label": "Position / Role",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "start_date",
+            "label": "Commencement Date",
+            "type": "date",
+            "required": true
+          },
+          {
+            "key": "signature",
+            "label": "Signature",
+            "type": "signature",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "T2",
+    "version": "1",
+    "title": "Emergency Procedures Induction",
+    "description": "Worker acknowledgement of site emergency procedures.",
+    "stage": "operational",
+    "permissions": {
+      "canFill": ["owner"],
+      "canSign": ["owner"],
+      "canView": ["owner", "manager"]
+    },
+    "sections": [
+      {
+        "title": "Emergency Information",
+        "fields": [
+          {
+            "key": "emergency_contacts",
+            "label": "Emergency Contact Numbers",
+            "type": "acknowledgement_group",
+            "items": [
+              "Emergency Services (Police/Fire/Ambulance): 000",
+              "Nearest hospital has been identified and I know the route.",
+              "First aid kit location has been shown to me.",
+              "Emergency evacuation assembly point has been shown to me.",
+              "I know where the emergency contact list is posted on site."
+            ],
+            "mustAcceptAll": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "title": "Site-Specific Information",
+        "fields": [
+          {
+            "key": "first_aid_officer",
+            "label": "Site First Aid Officer Name",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "assembly_point",
+            "label": "Emergency Assembly Point Description",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "understands_procedures",
+            "label": "I confirm I understand the emergency procedures for this site",
+            "type": "yes_no",
+            "required": true
+          },
+          {
+            "key": "signature",
+            "label": "Signature",
+            "type": "signature",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "T3",
+    "version": "1",
+    "title": "Hazard Identification & Risk Assessment",
+    "description": "Identify and assess hazards in the work area.",
+    "stage": "operational",
+    "permissions": {
+      "canFill": ["manager"],
+      "canSign": ["manager"],
+      "canView": ["owner", "manager", "agronomist", "staff"]
+    },
+    "sections": [
+      {
+        "title": "Assessment Details",
+        "fields": [
+          {
+            "key": "work_area",
+            "label": "Work Area / Task",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "assessment_date",
+            "label": "Assessment Date",
+            "type": "date",
+            "required": true
+          },
+          {
+            "key": "assessed_by",
+            "label": "Assessed By",
+            "type": "text",
+            "required": true
+          }
+        ]
+      },
+      {
+        "title": "Hazard Register",
+        "fields": [
+          {
+            "key": "hazards",
+            "label": "Identified Hazards",
+            "type": "table",
+            "columns": [
+              { "key": "hazard", "label": "Hazard Description", "type": "text" },
+              { "key": "who_affected", "label": "Who May Be Affected", "type": "text" },
+              { "key": "likelihood", "label": "Likelihood (1-5)", "type": "number" },
+              { "key": "consequence", "label": "Consequence (1-5)", "type": "number" },
+              { "key": "risk_rating", "label": "Risk Rating", "type": "select", "options": ["Low", "Medium", "High", "Extreme"] },
+              { "key": "controls", "label": "Control Measures", "type": "text" }
+            ],
+            "required": true
+          }
+        ]
+      },
+      {
+        "title": "Sign-off",
+        "fields": [
+          {
+            "key": "review_date",
+            "label": "Next Review Date",
+            "type": "date",
+            "required": true
+          },
+          {
+            "key": "signature",
+            "label": "Authorised By (Signature)",
+            "type": "signature",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "T4",
+    "version": "1",
+    "title": "PPE Issue Register",
+    "description": "Record of personal protective equipment issued to workers.",
+    "stage": "operational",
+    "permissions": {
+      "canFill": ["manager", "agronomist"],
+      "canSign": ["manager", "agronomist"],
+      "canView": ["owner", "manager"]
+    },
+    "sections": [
+      {
+        "title": "Worker Details",
+        "fields": [
+          {
+            "key": "worker_name",
+            "label": "Worker Name",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "issue_date",
+            "label": "Issue Date",
+            "type": "date",
+            "required": true
+          },
+          {
+            "key": "role",
+            "label": "Role",
+            "type": "text",
+            "required": true
+          }
+        ]
+      },
+      {
+        "title": "PPE Items Issued",
+        "fields": [
+          {
+            "key": "ppe_items",
+            "label": "PPE Issued",
+            "type": "table",
+            "columns": [
+              { "key": "item", "label": "PPE Item", "type": "text" },
+              { "key": "size", "label": "Size / Spec", "type": "text" },
+              { "key": "quantity", "label": "Qty", "type": "number" },
+              { "key": "condition", "label": "Condition", "type": "select", "options": ["New", "Good", "Fair"] },
+              { "key": "returned", "label": "Returned", "type": "yes_no" }
+            ],
+            "required": true
+          }
+        ]
+      },
+      {
+        "title": "Acknowledgement",
+        "fields": [
+          {
+            "key": "ppe_acknowledgement",
+            "label": "Worker Acknowledgement",
+            "type": "acknowledgement_group",
+            "items": [
+              "I have received the PPE items listed above.",
+              "I have been shown how to correctly fit, use and maintain each item.",
+              "I understand I must wear appropriate PPE when required.",
+              "I will report any damaged or defective PPE immediately."
+            ],
+            "mustAcceptAll": true,
+            "required": true
+          },
+          {
+            "key": "signature",
+            "label": "Worker Signature",
+            "type": "signature",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "T5",
+    "version": "1",
+    "title": "Chemical Safety Induction",
+    "description": "Induction on safe handling, storage and disposal of agricultural chemicals.",
+    "stage": "operational",
+    "permissions": {
+      "canFill": ["owner", "manager"],
+      "canSign": ["owner", "manager"],
+      "canView": ["owner", "manager"]
+    },
+    "sections": [
+      {
+        "title": "Chemical Safety Training",
+        "fields": [
+          {
+            "key": "chemical_items",
+            "label": "I confirm I have been instructed on the following",
+            "type": "checklist",
+            "responseType": "yes_no",
+            "items": [
+              "Location and use of Safety Data Sheets (SDS)",
+              "Safe handling procedures for agricultural chemicals",
+              "Correct PPE requirements for chemical handling",
+              "Chemical storage requirements and restricted areas",
+              "Emergency procedures for chemical spills",
+              "Withholding periods and re-entry intervals",
+              "Correct disposal of empty chemical containers"
+            ],
+            "required": true
+          }
+        ]
+      },
+      {
+        "title": "Competency Check",
+        "fields": [
+          {
+            "key": "holds_licence",
+            "label": "Do you hold a current chemical user's licence/accreditation?",
+            "type": "yes_no",
+            "required": true
+          },
+          {
+            "key": "licence_number",
+            "label": "Licence / Accreditation Number (if applicable)",
+            "type": "text"
+          },
+          {
+            "key": "licence_expiry",
+            "label": "Expiry Date",
+            "type": "date"
+          },
+          {
+            "key": "signature",
+            "label": "Signature",
+            "type": "signature",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "T6",
+    "version": "1",
+    "title": "Manual Handling Safety Induction",
+    "description": "Acknowledgement of manual handling procedures and injury prevention training.",
+    "stage": "operational",
+    "permissions": {
+      "canFill": ["manager", "agronomist"],
+      "canSign": ["manager", "agronomist"],
+      "canView": ["owner", "manager"]
+    },
+    "sections": [
+      {
+        "title": "Manual Handling Training",
+        "fields": [
+          {
+            "key": "training_items",
+            "label": "I confirm I have been trained in the following manual handling techniques",
+            "type": "checklist",
+            "responseType": "initials",
+            "items": [
+              "Correct lifting technique (bend knees, straight back, load close to body)",
+              "Team lifting procedures for loads over 20kg",
+              "Use of mechanical aids (trolleys, forklifts, pallet jacks)",
+              "Safe repetitive movement practices",
+              "Correct push/pull techniques",
+              "Identifying and reporting manual handling hazards"
+            ],
+            "required": true
+          }
+        ]
+      },
+      {
+        "title": "Declaration",
+        "fields": [
+          {
+            "key": "pre_existing",
+            "label": "Do you have any pre-existing musculoskeletal conditions that may be affected by manual handling?",
+            "type": "yes_no",
+            "required": true
+          },
+          {
+            "key": "pre_existing_details",
+            "label": "If yes, please provide details",
+            "type": "textarea"
+          },
+          {
+            "key": "signature",
+            "label": "Signature",
+            "type": "signature",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "T7",
+    "version": "1",
+    "title": "Plant & Machinery Safety Induction",
+    "description": "Induction for safe operation of farm vehicles, plant and machinery.",
+    "stage": "operational",
+    "permissions": {
+      "canFill": ["agronomist"],
+      "canSign": ["agronomist"],
+      "canView": ["owner", "manager"]
+    },
+    "sections": [
+      {
+        "title": "Machinery Safety Training",
+        "fields": [
+          {
+            "key": "machinery_items",
+            "label": "I confirm I have been informed of the following",
+            "type": "checklist",
+            "responseType": "yes_no",
+            "items": [
+              "Pre-operational checks required before using plant or machinery",
+              "Safe operating procedures for farm vehicles (tractors, UTVs, quads)",
+              "Guarding requirements and lockout/tagout procedures",
+              "Safe operating procedures for PTO-driven equipment",
+              "Rollover protection requirements for tractors",
+              "Refuelling procedures and fire prevention",
+              "Reporting defects and maintenance procedures",
+              "Speed limits and site access rules"
+            ],
+            "required": true
+          }
+        ]
+      },
+      {
+        "title": "Licence & Competency",
+        "fields": [
+          {
+            "key": "holds_licence",
+            "label": "Do you hold a current driver's licence appropriate for vehicles you will operate?",
+            "type": "yes_no",
+            "required": true
+          },
+          {
+            "key": "licence_class",
+            "label": "Licence Class",
+            "type": "text"
+          },
+          {
+            "key": "machinery_competent",
+            "label": "Have you received instruction on all plant/machinery you are required to operate?",
+            "type": "yes_no",
+            "required": true
+          },
+          {
+            "key": "signature",
+            "label": "Signature",
+            "type": "signature",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "T8",
+    "version": "1",
+    "title": "Incident / Near Miss Report",
+    "description": "Record of a workplace incident, injury or near miss event. Completed by manager.",
+    "stage": "operational",
+    "permissions": {
+      "canFill": ["owner", "manager"],
+      "canSign": ["owner", "manager"],
+      "canView": ["owner", "manager"]
+    },
+    "sections": [
+      {
+        "title": "Incident Details",
+        "fields": [
+          {
+            "key": "incident_date",
+            "label": "Date of Incident",
+            "type": "date",
+            "required": true
+          },
+          {
+            "key": "incident_time",
+            "label": "Time of Incident",
+            "type": "text",
+            "placeholder": "e.g. 14:30",
+            "required": true
+          },
+          {
+            "key": "incident_type",
+            "label": "Type of Incident",
+            "type": "select",
+            "options": ["Injury", "Near Miss", "Property Damage", "Environmental", "Illness"],
+            "required": true
+          },
+          {
+            "key": "location",
+            "label": "Location on Property",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "description",
+            "label": "Description of Incident",
+            "type": "textarea",
+            "required": true
+          }
+        ]
+      },
+      {
+        "title": "Person(s) Involved",
+        "fields": [
+          {
+            "key": "person_name",
+            "label": "Name of Person Injured / Involved",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "person_role",
+            "label": "Role",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "injury_description",
+            "label": "Nature of Injury / Illness (if applicable)",
+            "type": "textarea"
+          },
+          {
+            "key": "body_part",
+            "label": "Body Part Affected",
+            "type": "text"
+          },
+          {
+            "key": "treatment",
+            "label": "First Aid / Medical Treatment Given",
+            "type": "textarea"
+          }
+        ]
+      },
+      {
+        "title": "Investigation & Corrective Action",
+        "fields": [
+          {
+            "key": "immediate_cause",
+            "label": "Immediate Cause of Incident",
+            "type": "textarea",
+            "required": true
+          },
+          {
+            "key": "root_cause",
+            "label": "Underlying / Root Cause",
+            "type": "textarea"
+          },
+          {
+            "key": "corrective_actions",
+            "label": "Corrective Actions Taken or Planned",
+            "type": "table",
+            "columns": [
+              { "key": "action", "label": "Action", "type": "text" },
+              { "key": "responsible", "label": "Responsible Person", "type": "text" },
+              { "key": "due_date", "label": "Due Date", "type": "date" },
+              { "key": "status", "label": "Status", "type": "select", "options": ["Open", "In Progress", "Closed"] }
+            ]
+          },
+          {
+            "key": "notifiable",
+            "label": "Was this a notifiable incident under the WHS Act?",
+            "type": "yes_no",
+            "required": true
+          },
+          {
+            "key": "regulator_notified",
+            "label": "Was the regulator (SafeWork) notified?",
+            "type": "yes_no"
+          },
+          {
+            "key": "signature",
+            "label": "Manager Signature",
+            "type": "signature",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "T9",
+    "version": "1",
+    "title": "Contractor Induction Statement",
+    "description": "Site induction for contractors and subcontractors. Completed by manager for external contractors.",
+    "stage": "operational",
+    "permissions": {
+      "canFill": ["owner", "manager"],
+      "canSign": ["owner", "manager"],
+      "canView": ["owner", "manager"]
+    },
+    "sections": [
+      {
+        "title": "Contractor Details",
+        "fields": [
+          {
+            "key": "contractor_name",
+            "label": "Contractor / Company Name",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "contact_person",
+            "label": "Contact Person",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "work_description",
+            "label": "Description of Work",
+            "type": "textarea",
+            "required": true
+          },
+          {
+            "key": "work_date",
+            "label": "Date(s) on Site",
+            "type": "text",
+            "required": true
+          }
+        ]
+      },
+      {
+        "title": "Induction Checklist",
+        "fields": [
+          {
+            "key": "induction_items",
+            "label": "The following site information was communicated to the contractor",
+            "type": "checklist",
+            "responseType": "yes_no",
+            "items": [
+              "Site WHS rules and expectations",
+              "Emergency procedures and assembly point",
+              "Site-specific hazards (chemicals, machinery, livestock)",
+              "PPE requirements for the site",
+              "Incident reporting procedures",
+              "Permit to work requirements (if applicable)",
+              "Site access and speed limits"
+            ],
+            "required": true
+          }
+        ]
+      },
+      {
+        "title": "Insurance & Compliance",
+        "fields": [
+          {
+            "key": "public_liability",
+            "label": "Does contractor hold current Public Liability Insurance?",
+            "type": "yes_no",
+            "required": true
+          },
+          {
+            "key": "workers_comp",
+            "label": "Does contractor hold current Workers' Compensation Insurance?",
+            "type": "yes_no",
+            "required": true
+          },
+          {
+            "key": "swms_provided",
+            "label": "Has a Safe Work Method Statement (SWMS) been provided for high risk work?",
+            "type": "tri_state"
+          },
+          {
+            "key": "manager_signature",
+            "label": "Site Manager Signature",
+            "type": "signature",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "T10",
+    "version": "1",
+    "title": "Return to Work Plan",
+    "description": "Graduated return to work plan following a workplace injury or illness.",
+    "stage": "operational",
+    "permissions": {
+      "canFill": ["owner", "manager"],
+      "canSign": ["owner", "manager"],
+      "canView": ["owner", "manager"]
+    },
+    "sections": [
+      {
+        "title": "Worker & Injury Details",
+        "fields": [
+          {
+            "key": "worker_name",
+            "label": "Worker Name",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "injury_date",
+            "label": "Date of Injury / Illness",
+            "type": "date",
+            "required": true
+          },
+          {
+            "key": "injury_description",
+            "label": "Nature of Injury / Illness",
+            "type": "textarea",
+            "required": true
+          },
+          {
+            "key": "treating_doctor",
+            "label": "Treating Medical Practitioner",
+            "type": "text"
+          },
+          {
+            "key": "claim_number",
+            "label": "Workers' Compensation Claim Number",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "title": "Return to Work Schedule",
+        "fields": [
+          {
+            "key": "return_date",
+            "label": "Expected Return Date",
+            "type": "date",
+            "required": true
+          },
+          {
+            "key": "duties",
+            "label": "Suitable / Modified Duties",
+            "type": "table",
+            "columns": [
+              { "key": "week", "label": "Week", "type": "text" },
+              { "key": "duties", "label": "Duties", "type": "text" },
+              { "key": "hours", "label": "Hours/Day", "type": "number" },
+              { "key": "restrictions", "label": "Restrictions", "type": "text" }
+            ],
+            "required": true
+          }
+        ]
+      },
+      {
+        "title": "Sign-off",
+        "fields": [
+          {
+            "key": "worker_agrees",
+            "label": "Worker agrees to the return to work plan",
+            "type": "yes_no",
+            "required": true
+          },
+          {
+            "key": "manager_signature",
+            "label": "Manager Signature",
+            "type": "signature",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "T11",
+    "version": "1",
+    "title": "Safe Work Method Statement (SWMS)",
+    "description": "Step-by-step safety procedures for high risk construction or farm work.",
+    "stage": "operational",
+    "permissions": {
+      "canFill": ["manager"],
+      "canSign": ["manager"],
+      "canView": ["owner", "manager", "agronomist", "staff"]
+    },
+    "sections": [
+      {
+        "title": "Task Overview",
+        "fields": [
+          {
+            "key": "task_name",
+            "label": "Task / Activity",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "task_location",
+            "label": "Location",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "date",
+            "label": "Date",
+            "type": "date",
+            "required": true
+          },
+          {
+            "key": "prepared_by",
+            "label": "Prepared By",
+            "type": "text",
+            "required": true
+          }
+        ]
+      },
+      {
+        "title": "Work Steps & Controls",
+        "fields": [
+          {
+            "key": "steps",
+            "label": "Work Steps",
+            "type": "table",
+            "columns": [
+              { "key": "step", "label": "Step", "type": "number" },
+              { "key": "description", "label": "Work Step Description", "type": "text" },
+              { "key": "hazards", "label": "Hazards", "type": "text" },
+              { "key": "controls", "label": "Control Measures", "type": "text" },
+              { "key": "ppe", "label": "PPE Required", "type": "text" }
+            ],
+            "required": true
+          }
+        ]
+      },
+      {
+        "title": "Worker Acknowledgement",
+        "fields": [
+          {
+            "key": "workers_signed",
+            "label": "Workers who have read and understood this SWMS",
+            "type": "table",
+            "columns": [
+              { "key": "name", "label": "Name", "type": "text" },
+              { "key": "date", "label": "Date", "type": "date" }
+            ]
+          },
+          {
+            "key": "supervisor_signature",
+            "label": "Supervisor Signature",
+            "type": "signature",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "T12",
+    "version": "1",
+    "title": "Plant & Equipment Pre-Start Checklist",
+    "description": "Daily pre-operational safety check for farm plant and equipment.",
+    "stage": "operational",
+    "permissions": {
+      "canFill": ["manager"],
+      "canSign": ["manager"],
+      "canView": ["owner", "manager"]
+    },
+    "sections": [
+      {
+        "title": "Equipment Details",
+        "fields": [
+          {
+            "key": "equipment_name",
+            "label": "Plant / Equipment Name",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "registration",
+            "label": "Registration / ID",
+            "type": "text"
+          },
+          {
+            "key": "check_date",
+            "label": "Date",
+            "type": "date",
+            "required": true
+          },
+          {
+            "key": "operator",
+            "label": "Operator Name",
+            "type": "text",
+            "required": true
+          }
+        ]
+      },
+      {
+        "title": "Pre-Start Checks",
+        "fields": [
+          {
+            "key": "checks",
+            "label": "Check Items",
+            "type": "checklist",
+            "responseType": "tri_state",
+            "items": [
+              "Engine oil level",
+              "Coolant level",
+              "Hydraulic fluid level",
+              "Fuel level",
+              "Tyre condition and pressure",
+              "Lights and indicators",
+              "Brakes operational",
+              "Seatbelt / ROPS present and functional",
+              "Mirrors and visibility clear",
+              "All guards in place",
+              "No visible fluid leaks",
+              "Horn operational",
+              "Fire extinguisher present and in date"
+            ],
+            "required": true
+          },
+          {
+            "key": "defects",
+            "label": "Defects or Issues Identified",
+            "type": "textarea"
+          },
+          {
+            "key": "safe_to_operate",
+            "label": "Equipment is safe to operate",
+            "type": "yes_no",
+            "required": true
+          },
+          {
+            "key": "signature",
+            "label": "Operator Signature",
+            "type": "signature",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "T13",
+    "version": "1",
+    "title": "First Aid Register",
+    "description": "Record of first aid treatments administered on site.",
+    "stage": "operational",
+    "permissions": {
+      "canFill": ["owner", "manager"],
+      "canSign": ["owner", "manager"],
+      "canView": ["owner", "manager"]
+    },
+    "sections": [
+      {
+        "title": "Treatment Record",
+        "fields": [
+          {
+            "key": "patient_name",
+            "label": "Name of Person Treated",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "date",
+            "label": "Date of Treatment",
+            "type": "date",
+            "required": true
+          },
+          {
+            "key": "time",
+            "label": "Time",
+            "type": "text",
+            "placeholder": "e.g. 09:15"
+          },
+          {
+            "key": "injury_description",
+            "label": "Nature of Injury / Complaint",
+            "type": "textarea",
+            "required": true
+          },
+          {
+            "key": "body_part",
+            "label": "Body Part Affected",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "treatment_given",
+            "label": "First Aid Treatment Given",
+            "type": "textarea",
+            "required": true
+          },
+          {
+            "key": "products_used",
+            "label": "First Aid Products / Equipment Used",
+            "type": "text"
+          },
+          {
+            "key": "further_treatment",
+            "label": "Was further medical treatment required?",
+            "type": "yes_no",
+            "required": true
+          },
+          {
+            "key": "further_details",
+            "label": "If yes, details of further treatment",
+            "type": "text"
+          },
+          {
+            "key": "first_aider_name",
+            "label": "First Aider Name",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "signature",
+            "label": "First Aider Signature",
+            "type": "signature",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "T14",
+    "version": "1",
+    "title": "Toolbox Talk Record",
+    "description": "Record of a WHS toolbox talk / safety briefing session.",
+    "stage": "operational",
+    "permissions": {
+      "canFill": ["owner", "manager"],
+      "canSign": ["owner", "manager"],
+      "canView": ["owner", "manager", "agronomist", "staff"]
+    },
+    "sections": [
+      {
+        "title": "Session Details",
+        "fields": [
+          {
+            "key": "topic",
+            "label": "Topic / Subject",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "date",
+            "label": "Date",
+            "type": "date",
+            "required": true
+          },
+          {
+            "key": "location",
+            "label": "Location",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "presenter",
+            "label": "Presented By",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "duration",
+            "label": "Duration (minutes)",
+            "type": "number",
+            "required": true
+          },
+          {
+            "key": "content",
+            "label": "Key Points Discussed",
+            "type": "textarea",
+            "required": true
+          }
+        ]
+      },
+      {
+        "title": "Attendees",
+        "fields": [
+          {
+            "key": "attendees",
+            "label": "Attendee Sign-off",
+            "type": "table",
+            "columns": [
+              { "key": "name", "label": "Name", "type": "text" },
+              { "key": "role", "label": "Role", "type": "text" },
+              { "key": "date", "label": "Date", "type": "date" }
+            ]
+          },
+          {
+            "key": "actions",
+            "label": "Actions Arising",
+            "type": "textarea"
+          },
+          {
+            "key": "presenter_signature",
+            "label": "Presenter Signature",
+            "type": "signature",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "T15",
+    "version": "1",
+    "title": "WHS Workplace Inspection",
+    "description": "Periodic workplace inspection to identify and address WHS hazards.",
+    "stage": "operational",
+    "permissions": {
+      "canFill": ["agronomist"],
+      "canSign": ["agronomist"],
+      "canView": ["owner", "manager"]
+    },
+    "sections": [
+      {
+        "title": "Inspection Details",
+        "fields": [
+          {
+            "key": "inspection_date",
+            "label": "Inspection Date",
+            "type": "date",
+            "required": true
+          },
+          {
+            "key": "area_inspected",
+            "label": "Area(s) Inspected",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "inspector",
+            "label": "Inspector Name",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "worker_rep",
+            "label": "Worker Representative (if applicable)",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "title": "Inspection Checklist",
+        "fields": [
+          {
+            "key": "inspection_items",
+            "label": "Inspection Items",
+            "type": "checklist",
+            "responseType": "tri_state",
+            "items": [
+              "Housekeeping and general tidiness",
+              "Emergency exits clear and signage visible",
+              "Fire extinguishers in place and in date",
+              "First aid kit stocked and accessible",
+              "Chemical storage compliant with SDS requirements",
+              "Plant and equipment guarding in place",
+              "Electrical safety — no damaged cords or exposed wiring",
+              "Slips, trips and falls hazards addressed",
+              "Personal protective equipment available and used",
+              "WHS notices and signs up to date",
+              "Waste disposal appropriate",
+              "Lighting adequate for tasks performed"
+            ],
+            "required": true
+          }
+        ]
+      },
+      {
+        "title": "Findings & Actions",
+        "fields": [
+          {
+            "key": "issues",
+            "label": "Issues Identified & Actions Required",
+            "type": "table",
+            "columns": [
+              { "key": "issue", "label": "Issue", "type": "text" },
+              { "key": "risk", "label": "Risk Level", "type": "select", "options": ["Low", "Medium", "High", "Extreme"] },
+              { "key": "action", "label": "Action Required", "type": "text" },
+              { "key": "responsible", "label": "Responsible", "type": "text" },
+              { "key": "due", "label": "Due Date", "type": "date" },
+              { "key": "completed", "label": "Completed", "type": "yes_no" }
+            ]
+          },
+          {
+            "key": "overall_rating",
+            "label": "Overall Workplace Safety Rating",
+            "type": "select",
+            "options": ["Satisfactory", "Requires Improvement", "Unsatisfactory"],
+            "required": true
+          },
+          {
+            "key": "signature",
+            "label": "Inspector Signature",
+            "type": "signature",
+            "required": true
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -616,3 +616,60 @@ export async function getFarmContext(orgId: string) {
     ]);
   return { fields, seasons, mobs, animals, healthEvents, financials, soilReports };
 }
+
+// ─── Benchmark ────────────────────────────────────────────────────────────────
+
+export interface BenchmarkSeason {
+  season_id:     string;
+  field_name:    string;
+  field_area_ha: number;
+  crop_type:     string;
+  planted_at:    string;
+  harvested_at:  string | null;
+  yield_kg:      number | null;
+  yield_per_ha:  number | null;
+  status:        string;
+}
+
+export async function getBenchmarkData(orgId: string) {
+  const [seasons, annualFinance] = await Promise.all([
+    // Last 10 harvested (or active) seasons with field area for yield/ha calculation
+    dbQuery<BenchmarkSeason>(
+      `SELECT
+         s.id                                        AS season_id,
+         f.name                                      AS field_name,
+         f.area_ha                                   AS field_area_ha,
+         s.crop_type,
+         s.planted_at::text                          AS planted_at,
+         s.harvested_at::text                        AS harvested_at,
+         s.yield_kg,
+         CASE WHEN f.area_ha > 0 AND s.yield_kg IS NOT NULL
+              THEN ROUND((s.yield_kg / f.area_ha)::numeric, 1)
+              ELSE NULL
+         END                                         AS yield_per_ha,
+         s.status
+       FROM seasons s
+       JOIN fields f ON f.id = s.field_id
+       WHERE f.organization_id = $1
+         AND s.status IN ('harvested', 'active')
+       ORDER BY COALESCE(s.harvested_at, s.planted_at) DESC
+       LIMIT 20`,
+      [orgId]
+    ),
+    // Annual income/expense totals for last 3 years
+    dbQuery<{ year: string; revenue: number; expenses: number }>(
+      `SELECT
+         EXTRACT(YEAR FROM entry_date)::text         AS year,
+         COALESCE(SUM(amount) FILTER (WHERE type='income'),0)  AS revenue,
+         COALESCE(SUM(amount) FILTER (WHERE type='expense'),0) AS expenses
+       FROM financial_entries
+       WHERE organization_id = $1
+         AND entry_date >= date_trunc('year', now()) - interval '2 years'
+       GROUP BY EXTRACT(YEAR FROM entry_date)
+       ORDER BY year DESC`,
+      [orgId]
+    ),
+  ]);
+
+  return { seasons, annualFinance };
+}

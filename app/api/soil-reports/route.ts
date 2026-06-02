@@ -1,23 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { getOrgByEmail, getSoilReports, createSoilReport, updateSoilReport, deleteSoilReport } from "@/lib/queries";
+import { getSoilReports, createSoilReport, updateSoilReport, deleteSoilReport } from "@/lib/queries";
+import { requireRole } from "@/lib/api-auth";
 import OpenAI from "openai";
 // Import pdf-parse internals directly to avoid the startup self-test that
 // uses __dirname to load a test PDF (path breaks in Next.js server context).
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const pdfParse = require("pdf-parse/lib/pdf-parse") as (buf: Buffer) => Promise<{ text: string }>;
 
-async function getOrgCtx() {
-  const session = await auth();
-  if (!session?.user?.email) return null;
-  return getOrgByEmail(session.user.email);
-}
-
 export async function GET() {
   try {
-    const ctx = await getOrgCtx();
-    if (!ctx?.org_id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    const reports = await getSoilReports(ctx.org_id);
+    const result = await requireRole(["OWNER", "MANAGER", "AGRONOMIST"]);
+    if ("error" in result) return result.error;
+    const reports = await getSoilReports(result.ctx.org_id);
     return NextResponse.json({ reports });
   } catch (err) {
     console.error("[GET /api/soil-reports]", err);
@@ -27,8 +21,9 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const ctx = await getOrgCtx();
-    if (!ctx?.org_id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const result = await requireRole(["OWNER", "MANAGER", "AGRONOMIST"]);
+    if ("error" in result) return result.error;
+    const ctx = result.ctx;
 
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
@@ -174,11 +169,11 @@ Return ONLY valid JSON (no markdown, no extra text) with this exact structure:
 
 export async function DELETE(req: NextRequest) {
   try {
-    const ctx = await getOrgCtx();
-    if (!ctx?.org_id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const result = await requireRole(["OWNER", "MANAGER", "AGRONOMIST"]);
+    if ("error" in result) return result.error;
     const { id } = await req.json();
     if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
-    await deleteSoilReport(ctx.org_id, id);
+    await deleteSoilReport(result.ctx.org_id, id);
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[DELETE /api/soil-reports]", err);
